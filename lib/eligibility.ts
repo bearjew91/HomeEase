@@ -122,7 +122,7 @@ export const eligibilityDecisionSummary: EligibilitySummarySection[] = [
     title: 'Eligible — Special Tracks',
     tone: 'special',
     items: [
-      'Singles aged 26–35 under the Young Settler / Mishtaken Tza’ir track.',
+      'Singles aged 26–35 under the Young Settler / Mishtaknim Tza’ir track.',
       'Applicants aged 21+ with a recognized 75%+ medical disability.',
       'Applicants with specific mobility limitations.',
       'Wheelchair-bound applicants.',
@@ -464,7 +464,7 @@ export function evaluateEligibility(profile: EligibilityProfile): EligibilityRes
 
   if (profile.status === 'single' && profile.age >= 26 && profile.age <= 34) {
     eligibleByStatus = true
-    reasons.push('Applicant may qualify under the Mishtaken Tza’ir / Young Settler track.')
+    reasons.push('Applicant may qualify under the Mishtaknim Tza’ir / Young Settler track.')
   }
 
   if (
