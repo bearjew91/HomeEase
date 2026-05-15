@@ -97,6 +97,10 @@ export interface OpenQuestion {
   status: string
 }
 
+const COUPLE_STATUSES: FamilyStatus[] = ['married', 'common_law', 'engaged']
+const SINGLE_ELIGIBLE_STATUSES: FamilyStatus[] = ['single', 'divorced', 'widow']
+const LONE_PARENT_ELIGIBLE_STATUSES: FamilyStatus[] = ['parent', 'single', 'divorced', 'widow']
+
 export const eligibilityDecisionSummary: EligibilitySummarySection[] = [
   {
     title: 'Clearly Eligible',
@@ -122,7 +126,7 @@ export const eligibilityDecisionSummary: EligibilitySummarySection[] = [
     title: 'Eligible — Special Tracks',
     tone: 'special',
     items: [
-      'Singles aged 26–35 under the Young Settler / Mishtaknim Tza’ir track.',
+      "Singles aged 26–35 under the Young Settler / Mishtaknim Tza'ir track.",
       'Applicants aged 21+ with a recognized 75%+ medical disability.',
       'Applicants with specific mobility limitations.',
       'Wheelchair-bound applicants.',
@@ -439,7 +443,7 @@ export function evaluateEligibility(profile: EligibilityProfile): EligibilityRes
 
   let eligibleByStatus = false
 
-  if (['married', 'common_law', 'engaged'].includes(profile.status)) {
+  if (COUPLE_STATUSES.includes(profile.status)) {
     eligibleByStatus = true
 
     if (profile.status === 'common_law') {
@@ -451,20 +455,20 @@ export function evaluateEligibility(profile: EligibilityProfile): EligibilityRes
     }
   }
 
-  if (['single', 'divorced', 'widow'].includes(profile.status) && profile.age >= 35) {
+  if (SINGLE_ELIGIBLE_STATUSES.includes(profile.status) && profile.age >= 35) {
     eligibleByStatus = true
   }
 
   if (
     profile.has_child_under_21_in_custody &&
-    ['parent', 'single', 'divorced', 'widow'].includes(profile.status)
+    LONE_PARENT_ELIGIBLE_STATUSES.includes(profile.status)
   ) {
     eligibleByStatus = true
   }
 
   if (profile.status === 'single' && profile.age >= 26 && profile.age <= 34) {
     eligibleByStatus = true
-    reasons.push('Applicant may qualify under the Mishtaknim Tza’ir / Young Settler track.')
+    reasons.push("Applicant may qualify under the Mishtaknim Tza'ir / Young Settler track.")
   }
 
   if (

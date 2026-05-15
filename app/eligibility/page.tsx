@@ -228,7 +228,7 @@ export default function EligibilityPage() {
       <div className="mt-12 rounded-lg bg-accent/10 p-6">
         <h3 className="mb-2 text-lg font-bold">Next Step</h3>
         <p className="mb-4 text-gray-700">
-          Once you confirm you&apos;re eligible, move on to understanding your budget and mortgage
+          Once you confirm you're eligible, move on to understanding your budget and mortgage
           capacity.
         </p>
         <Link
