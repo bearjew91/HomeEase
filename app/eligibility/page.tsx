@@ -143,7 +143,7 @@ export default function EligibilityPage() {
                     <strong>Duration:</strong> {item.duration}
                   </p>
                   <p className="mt-1 text-sm text-gray-700">
-                    <strong>Appeal / path:</strong> {item.appeal_path}
+                    <strong>Appeal path:</strong> {item.appeal_path}
                   </p>
                 </div>
               ))}

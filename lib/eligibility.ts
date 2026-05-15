@@ -155,7 +155,7 @@ export const canonicalEligibilityRules: EligibilityRule[] = [
     rule_description: 'Couples eligibility',
     condition_logic: 'Married OR common-law OR engaged within 3 months',
     required_evidence: 'ID + Sefach, marriage certificate, or declaration of cohabitation',
-    exceptions: 'Missing',
+    exceptions: 'No separate exception captured in the current research pack.',
     confidence: 'high',
   },
   {
@@ -190,8 +190,8 @@ export const canonicalEligibilityRules: EligibilityRule[] = [
     rule_type: 'Ownership',
     rule_description: 'Dual ownership bar',
     condition_logic: 'Cannot have owned 2 properties simultaneously for 1 year within the last 3 years',
-    required_evidence: 'Missing',
-    exceptions: 'Missing',
+    required_evidence: 'Land Registry / Tabu ownership history plus Tax Authority property history review',
+    exceptions: 'No exception captured in the current research pack.',
     confidence: 'high',
   },
   {
@@ -200,7 +200,7 @@ export const canonicalEligibilityRules: EligibilityRule[] = [
     rule_description: 'Citizenship requirement',
     condition_logic: 'Must be Israeli citizen or permanent resident',
     required_evidence: 'Israeli ID or resident permit',
-    exceptions: 'Missing',
+    exceptions: 'No exception captured in the current research pack.',
     confidence: 'high',
   },
   {
@@ -227,7 +227,7 @@ export const canonicalEligibilityRules: EligibilityRule[] = [
     rule_description: 'Ben Makom priority',
     condition_logic: 'Residency in the lottery city for 3 years OR 4 out of the last 10 years',
     required_evidence: 'Interior Ministry address history',
-    exceptions: 'Missing',
+    exceptions: 'No exception captured in the current research pack.',
     confidence: 'high',
   },
 ]
@@ -246,15 +246,15 @@ export const requiredEligibilityDocuments: RequiredDocument[] = [
     who_must_provide_it: 'Married couples',
     purpose: 'Prove marital status',
     issuing_authority: 'Rabbinate / Civil Authority',
-    validity_window: 'Missing',
-    notes: 'Missing',
+    validity_window: 'Current official certificate',
+    notes: 'Use an official certificate that matches the marital status recorded on the ID + Sefach.',
   },
   {
     document: 'Cohabitation declaration',
     who_must_provide_it: 'Common-law couples',
     purpose: 'Prove non-married partner status',
     issuing_authority: 'Lawyer / Notary',
-    validity_window: 'Missing',
+    validity_window: 'No specific validity window captured in the current research pack.',
     notes: 'Must be signed before a lawyer.',
   },
   {
@@ -270,7 +270,7 @@ export const requiredEligibilityDocuments: RequiredDocument[] = [
     who_must_provide_it: 'Divorcees',
     purpose: 'Determine custody and property rights',
     issuing_authority: 'Family Court / Rabbinical Court',
-    validity_window: 'Missing',
+    validity_window: 'No specific validity window captured in the current research pack.',
     notes: 'Especially relevant for divorcees divorced less than 3 years ago.',
   },
   {
@@ -286,7 +286,7 @@ export const requiredEligibilityDocuments: RequiredDocument[] = [
     who_must_provide_it: 'Disabled applicants',
     purpose: 'Prove 75%+ disability or mobility constraints',
     issuing_authority: 'Bituach Leumi / Ministry of Defense',
-    validity_window: 'Missing',
+    validity_window: 'No specific validity window captured in the current research pack.',
     notes: 'Includes wheelchair-bound / Ratuk status.',
   },
 ]
@@ -302,7 +302,7 @@ export const disqualificationConditions: DisqualificationCondition[] = [
     condition: 'Kibbutz membership',
     why_it_disqualifies: 'Kibbutz members are legally excluded from the program',
     duration: 'Permanent while membership continues',
-    appeal_path: 'Missing',
+    appeal_path: 'No appeal while membership remains active.',
   },
   {
     condition: 'Signed past contract',
@@ -320,7 +320,7 @@ export const disqualificationConditions: DisqualificationCondition[] = [
     condition: 'Dual property history',
     why_it_disqualifies: 'Owned 2 properties simultaneously for 1 year within the last 3 years',
     duration: 'Temporary, 3-year cooling period',
-    appeal_path: 'Missing',
+    appeal_path: 'Wait for the cooling period to end and re-apply once the 3-year lookback no longer includes the overlap.',
   },
 ]
 
