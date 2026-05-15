@@ -233,6 +233,7 @@ export default function EligibilityPage() {
         </p>
         <Link
           href="/budget-calculator"
+          aria-label="Go to the budget calculator"
           className="inline-block rounded-lg bg-primary px-6 py-2 text-white transition-colors hover:bg-secondary"
         >
           Go to Budget Calculator
