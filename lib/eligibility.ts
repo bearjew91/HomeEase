@@ -423,7 +423,7 @@ export function evaluateEligibility(profile: EligibilityProfile): EligibilityRes
       reasons: ['Kibbutz members are excluded from eligibility.'],
       required_documents,
       priority_flags,
-      requires_manual_review: true,
+      requires_manual_review: false,
     }
   }
 
@@ -455,7 +455,10 @@ export function evaluateEligibility(profile: EligibilityProfile): EligibilityRes
     eligibleByStatus = true
   }
 
-  if (profile.status === 'parent' && profile.has_child_under_21_in_custody) {
+  if (
+    profile.has_child_under_21_in_custody &&
+    ['parent', 'single', 'divorced', 'widow'].includes(profile.status)
+  ) {
     eligibleByStatus = true
   }
 
