@@ -2,7 +2,7 @@
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Environment, Lightformer, useGLTF } from '@react-three/drei';
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
-import { Suspense, useEffect, useMemo, useRef } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 
 const MODEL_URL = '/models/tower.glb';
@@ -122,7 +122,20 @@ function Fallback() {
   );
 }
 
+function useIsDesktop() {
+  const [ok, setOk] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)');
+    setOk(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setOk(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+  return ok;
+}
+
 export default function BuildingBackground() {
+  const isDesktop = useIsDesktop();
   const scrollRef = useRef(0);
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -138,6 +151,8 @@ export default function BuildingBackground() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  if (!isDesktop) return null;
 
   return (
     <>

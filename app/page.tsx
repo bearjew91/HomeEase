@@ -16,9 +16,9 @@ export default function Home() {
     <div className="pb-8">
       <section className="grain-overlay px-4 pb-20 pt-6 md:pb-32 md:pt-12">
         <div className="shell">
-          <div className="glass-panel overflow-hidden rounded-[2rem] p-8 md:p-14 lg:max-w-[58%]">
+          <div className="glass-panel overflow-hidden rounded-2xl p-5 sm:rounded-[2rem] sm:p-8 md:p-14 lg:max-w-[58%]">
             <span className="section-label">{t('home.eyebrow')}</span>
-            <h1 className="mt-6 text-5xl leading-[0.93] text-stone-900 md:text-7xl">
+            <h1 className="mt-6 text-3xl leading-[0.97] text-stone-900 sm:text-5xl md:text-7xl md:leading-[0.93]">
               {t('home.heroTitle')}
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-8 text-[var(--ink-soft)] md:text-xl">
