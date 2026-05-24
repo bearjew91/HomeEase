@@ -12,6 +12,7 @@
     "@react-three/drei": "^9.56.14",
     "@react-three/fiber": "^8.13.7",
     "@react-three/postprocessing": "^2.15.1",
+    "@vercel/analytics": "^2.0.1",
     "framer-motion": "^10.16.4",
     "gsap": "^3.12.5",
     "next": "^14.0.3",
