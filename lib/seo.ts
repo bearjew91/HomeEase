@@ -29,28 +29,28 @@ const FALLBACK: Record<RouteKey, { he: { title: string; description: string }; e
     },
   },
   eligibility: {
-    he: { title: 'בדיקת זכאות — HomeEase', description: 'הסינון הזול ביותר בתהליך. לסגור זכאות לפני שמשקיעים זמן בהרשמה.' },
-    en: { title: 'Eligibility — HomeEase', description: 'The cheapest filter in the lottery process. Clear eligibility before spending energy on registration.' },
+    he: { title: 'בדיקת זכאות', description: 'הסינון הזול ביותר בתהליך. לסגור זכאות לפני שמשקיעים זמן בהרשמה.' },
+    en: { title: 'Eligibility', description: 'The cheapest filter in the lottery process. Clear eligibility before spending energy on registration.' },
   },
   registration: {
-    he: { title: 'הרשמה להגרלה — HomeEase', description: 'איך לעבור את ההרשמה הרשמית בלי הפתעות — מסמכים, חלון זמן ופורטל.' },
-    en: { title: 'Registration — HomeEase', description: 'Move through official lottery registration without surprises — docs, window, portal.' },
+    he: { title: 'הרשמה להגרלה', description: 'איך לעבור את ההרשמה הרשמית בלי הפתעות — מסמכים, חלון זמן ופורטל.' },
+    en: { title: 'Registration', description: 'Move through official lottery registration without surprises — docs, window, portal.' },
   },
   budget: {
-    he: { title: 'מחשבון תקציב — HomeEase', description: 'איזה מחיר דירה אתם באמת יכולים להרשות? תכנון לפי כללי בנק ישראל לדירות מסובסדות.' },
-    en: { title: 'Affordability calculator — HomeEase', description: 'What can you actually afford? Planning estimate using BoI rules for subsidized housing.' },
+    he: { title: 'מחשבון תקציב', description: 'איזה מחיר דירה אתם באמת יכולים להרשות? תכנון לפי כללי בנק ישראל לדירות מסובסדות.' },
+    en: { title: 'Affordability calculator', description: 'What can you actually afford? Planning estimate using BoI rules for subsidized housing.' },
   },
   mortgage: {
-    he: { title: 'מחשבון משכנתא — HomeEase', description: 'איזה סכום משכנתא יאשרו לכם בפועל? לפי הוראת בנק ישראל 329 והעדכון לדירות מסובסדות.' },
-    en: { title: 'Mortgage estimator — HomeEase', description: 'What loan will the bank actually approve? Per BoI directive 329 and the 2026 subsidized-housing rules.' },
+    he: { title: 'מחשבון משכנתא', description: 'איזה סכום משכנתא יאשרו לכם בפועל? לפי הוראת בנק ישראל 329 והעדכון לדירות מסובסדות.' },
+    en: { title: 'Mortgage estimator', description: 'What loan will the bank actually approve? Per BoI directive 329 and the 2026 subsidized-housing rules.' },
   },
   projects: {
-    he: { title: 'איתור פרויקטים — HomeEase', description: 'איך לקרוא נכון את רשימת הפרויקטים של דירה בהנחה. ההיקף, הכללים, ומה לחפש.' },
-    en: { title: 'Project finder — HomeEase', description: 'How to read the official Dira BeHanacha project list. Scale, rules, and what to look for.' },
+    he: { title: 'איתור פרויקטים', description: 'איך לקרוא נכון את רשימת הפרויקטים של דירה בהנחה. ההיקף, הכללים, ומה לחפש.' },
+    en: { title: 'Project finder', description: 'How to read the official Dira BeHanacha project list. Scale, rules, and what to look for.' },
   },
   roadmap: {
-    he: { title: 'מפת דרך לזוכים — HomeEase', description: 'הצעדים החיוניים מהזכייה ועד קבלת המפתח. שמאות, חוזה, משכנתא, מסירה.' },
-    en: { title: 'Winner roadmap — HomeEase', description: 'Essential steps from winning to getting the keys. Appraisal, contract, mortgage, handover.' },
+    he: { title: 'מפת דרך לזוכים', description: 'הצעדים החיוניים מהזכייה ועד קבלת המפתח. שמאות, חוזה, משכנתא, מסירה.' },
+    en: { title: 'Winner roadmap', description: 'Essential steps from winning to getting the keys. Appraisal, contract, mortgage, handover.' },
   },
 }
 
@@ -70,7 +70,7 @@ function pick(locale: Locale, key: RouteKey): { title: string; description: stri
   const ledeFromCatalog = localeKey ? t(`${localeKey}.lede`) : undefined
   const fb = FALLBACK[key][locale]
   return {
-    title: titleFromCatalog && titleFromCatalog.length <= 60 ? `${titleFromCatalog} — ${SITE_NAME}` : fb.title,
+    title: titleFromCatalog && titleFromCatalog.length <= 60 ? titleFromCatalog : fb.title,
     description: ledeFromCatalog && ledeFromCatalog.length <= 160 ? ledeFromCatalog : fb.description,
   }
 }

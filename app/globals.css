@@ -168,8 +168,8 @@ h1, h2, h3, h4, h5, h6 {
     radial-gradient(circle at 12% 0%, rgba(238, 193, 124, 0.20), transparent 55%),
     rgba(255, 251, 245, 0.92);
   border: 1px solid var(--line);
-  border-radius: 1.75rem;
-  padding: clamp(1.75rem, 3.5vw, 2.75rem);
+  border-radius: clamp(1rem, 2.5vw, 1.75rem);
+  padding: clamp(1.2rem, 3.5vw, 2.75rem);
   box-shadow: 0 22px 60px rgba(62, 39, 23, 0.12);
   backdrop-filter: blur(24px) saturate(1.35);
   -webkit-backdrop-filter: blur(24px) saturate(1.35);
@@ -214,17 +214,20 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .page-title {
-  font-size: clamp(2.4rem, 5vw, 4rem);
-  line-height: 1.02;
-  margin: 1.1rem 0 1.1rem;
+  font-size: clamp(1.55rem, 5vw, 4rem);
+  line-height: 1.08;
+  margin: 0.6rem 0;
   max-width: 22ch;
+}
+@media (min-width: 640px) {
+  .page-title { line-height: 1.02; margin: 1.1rem 0; }
 }
 
 .page-lede {
   font-family: var(--font-display), serif;
   font-style: italic;
-  font-size: clamp(1.05rem, 1.4vw, 1.25rem);
-  line-height: 1.55;
+  font-size: clamp(0.92rem, 1.4vw, 1.25rem);
+  line-height: 1.5;
   color: var(--ink-soft);
   max-width: 42rem;
   margin: 0;
