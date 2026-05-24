@@ -157,9 +157,9 @@ h1, h2, h3, h4, h5, h6 {
 /* ─── Sub-page system ─────────────────────────────────────────────────── */
 
 .page-shell {
-  width: min(1040px, calc(100% - 2rem));
+  width: min(1040px, calc(100% - 1.5rem));
   margin: 0 auto;
-  padding: 3rem 0 5rem;
+  padding: clamp(1.5rem, 4vw, 3rem) 0 clamp(2.5rem, 5vw, 5rem);
 }
 
 .page-shell > header {
