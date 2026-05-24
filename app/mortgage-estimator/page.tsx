@@ -2,60 +2,141 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { calculateMortgage } from '@/lib/calculators'
+import {
+  calculateMortgage,
+  type MortgageInputs,
+  type MortgageResult,
+  type ResultCategory,
+} from '@/lib/calculators'
 import Button from '@/components/shared/Button'
 import Input from '@/components/shared/Input'
 import { useT } from '@/lib/i18n/LocaleProvider'
 
-interface MortgageInput {
-  monthlyIncome: number
-  existingObligations: number
-  desiredMonthlyPayment: number
-  interestRate: number
-  loanTerm: number
-  downPayment: number
+interface FormState {
+  purchasePrice: number
+  appraisedMarketValue: number
+  netMonthlyHouseholdIncome: number
+  existingMonthlyLoanPayments: number
+  monthlyRentUntilEntry: number
+  otherFixedMonthlyObligations: number
+  availableCashEquity: number
+  hasEligibleGrant: boolean
+  useSubsidizedRules: boolean
+  annualInterestRatePct: number
+  termYears: number
 }
 
-interface MortgageResult {
-  maxLoan: number
-  maxPurchasePrice: number
-  monthlyPayment: number
-  debtToIncomeRatio: number
-  paymentRatio: number
-  totalInterest: number
+const initial: FormState = {
+  purchasePrice: 0,
+  appraisedMarketValue: 0,
+  netMonthlyHouseholdIncome: 0,
+  existingMonthlyLoanPayments: 0,
+  monthlyRentUntilEntry: 0,
+  otherFixedMonthlyObligations: 0,
+  availableCashEquity: 0,
+  hasEligibleGrant: false,
+  useSubsidizedRules: true,
+  annualInterestRatePct: 5.0,
+  termYears: 30,
 }
 
-const fieldNames: (keyof MortgageInput)[] = ['monthlyIncome', 'existingObligations', 'downPayment', 'interestRate', 'loanTerm']
-const fieldSteps: Record<string, string | undefined> = { interestRate: '0.1' }
-
-type Field = { label: string; placeholder: string; hint?: string }
 type Item = { label: string; detail: string }
 type Source = { label: string; body: string }
+type FieldCopy = { label: string; placeholder?: string; hint?: string }
+type ToggleCopy = { label: string; hint?: string }
+type CategoryCopy = { title: string; body: string }
+
+const toneByCategory: Record<ResultCategory, string> = {
+  green: 'tone-good',
+  yellow: 'tone-warn',
+  orange: 'tone-orange',
+  red: 'tone-danger',
+}
+
+const calloutByCategory: Record<ResultCategory, string> = {
+  green: 'callout-good',
+  yellow: 'callout-warn',
+  orange: 'callout-warn',
+  red: 'callout-danger',
+}
 
 export default function MortgageEstimatorPage() {
   const t = useT()
-  const fieldsCopy = t<Field[]>('mortgage.form.fields')
   const rulesItems = t<Item[]>('mortgage.rules.items')
   const sources = t<Source[]>('mortgage.sources.items')
+  const f = (key: string) => t<FieldCopy>(`mortgage.form.${key}`)
+  const toggle = (key: string) => t<ToggleCopy>(`mortgage.form.${key}`)
 
-  const [inputs, setInputs] = useState<MortgageInput>({
-    monthlyIncome: 0,
-    existingObligations: 0,
-    desiredMonthlyPayment: 0,
-    interestRate: 4.0,
-    loanTerm: 20,
-    downPayment: 0,
-  })
+  const [form, setForm] = useState<FormState>(initial)
   const [result, setResult] = useState<MortgageResult | null>(null)
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onNumber = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    setInputs(prev => ({ ...prev, [name]: parseFloat(value) || 0 }))
+    setForm(prev => ({ ...prev, [name]: parseFloat(value) || 0 }))
+  }
+  const onBool = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target
+    setForm(prev => ({ ...prev, [name]: checked }))
   }
 
-  const handleCalculate = () => setResult(calculateMortgage(inputs) as MortgageResult)
+  const handleCalculate = () => {
+    const inputs: MortgageInputs = {
+      purchasePrice: form.purchasePrice,
+      appraisedMarketValue: form.appraisedMarketValue || undefined,
+      netMonthlyHouseholdIncome: form.netMonthlyHouseholdIncome,
+      existingMonthlyLoanPayments: form.existingMonthlyLoanPayments,
+      monthlyRentUntilEntry: form.monthlyRentUntilEntry || undefined,
+      otherFixedMonthlyObligations: form.otherFixedMonthlyObligations || undefined,
+      availableCashEquity: form.availableCashEquity,
+      hasEligibleGrant: form.hasEligibleGrant,
+      useSubsidizedRules: form.useSubsidizedRules,
+      annualInterestRate: form.annualInterestRatePct / 100,
+      termYears: form.termYears,
+    }
+    setResult(calculateMortgage(inputs))
+  }
 
   const fmt = (n: number) => `₪${Math.round(n).toLocaleString('he-IL')}`
+  const pct = (n: number) => `${(n * 100).toFixed(1)}%`
+
+  const numberField = (
+    name: keyof FormState,
+    copy: FieldCopy,
+    step?: string,
+  ) => (
+    <div key={name as string}>
+      <label className="field-label" htmlFor={name as string}>{copy.label}</label>
+      <Input
+        id={name as string}
+        type="number"
+        name={name as string}
+        value={(form[name] as number) || ''}
+        onChange={onNumber}
+        placeholder={copy.placeholder}
+        step={step}
+      />
+      {copy.hint && <p className="mt-1.5 text-xs text-[var(--ink-soft)]">{copy.hint}</p>}
+    </div>
+  )
+
+  const checkboxField = (name: keyof FormState, copy: ToggleCopy) => (
+    <label key={name as string} className="flex items-start gap-3 cursor-pointer">
+      <input
+        type="checkbox"
+        name={name as string}
+        checked={form[name] as boolean}
+        onChange={onBool}
+        className="mt-1 h-4 w-4 accent-[var(--brand)]"
+      />
+      <span>
+        <span className="block text-sm font-semibold text-[var(--foreground)]">{copy.label}</span>
+        {copy.hint && <span className="block text-xs text-[var(--ink-soft)] mt-0.5">{copy.hint}</span>}
+      </span>
+    </label>
+  )
+
+  const category = result?.category
+  const categoryCopy = category ? t<CategoryCopy>(`mortgage.results.category.${category}`) : null
 
   return (
     <div className="page-shell">
@@ -87,24 +168,20 @@ export default function MortgageEstimatorPage() {
           <p className="mb-6">{t('mortgage.form.intro')}</p>
 
           <div className="space-y-5">
-            {fieldNames.map((name, idx) => {
-              const f = fieldsCopy[idx]
-              return (
-                <div key={name}>
-                  <label className="field-label" htmlFor={name}>{f.label}</label>
-                  <Input
-                    id={name}
-                    type="number"
-                    name={name}
-                    value={inputs[name] || ''}
-                    onChange={handleInputChange}
-                    placeholder={f.placeholder}
-                    step={fieldSteps[name]}
-                  />
-                  {f.hint && <p className="mt-1.5 text-xs text-[var(--ink-soft)]">{f.hint}</p>}
-                </div>
-              )
-            })}
+            {numberField('purchasePrice', f('purchasePrice'))}
+            {numberField('appraisedMarketValue', f('appraisedValue'))}
+            {numberField('netMonthlyHouseholdIncome', f('netIncome'))}
+            {numberField('existingMonthlyLoanPayments', f('existingLoans'))}
+            {numberField('monthlyRentUntilEntry', f('rentUntilEntry'))}
+            {numberField('otherFixedMonthlyObligations', f('otherObligations'))}
+            {numberField('availableCashEquity', f('cashEquity'))}
+            {numberField('annualInterestRatePct', f('interestRate'), '0.1')}
+            {numberField('termYears', f('termYears'))}
+
+            <div className="space-y-3 pt-2">
+              {checkboxField('hasEligibleGrant', toggle('hasGrant'))}
+              {checkboxField('useSubsidizedRules', toggle('useSubsidized'))}
+            </div>
 
             <Button onClick={handleCalculate} className="mt-4 w-full">
               {t('mortgage.form.calculate')}
@@ -114,40 +191,76 @@ export default function MortgageEstimatorPage() {
 
         <section className="surface-card">
           <h2>{t('mortgage.results.title')}</h2>
-          {result ? (
+          {result && categoryCopy && category ? (
             <div className="space-y-4">
-              <div className="stat-tile tone-good">
-                <p className="stat-label">{t('mortgage.results.maxLoan')}</p>
-                <p className="stat-value">{fmt(result.maxLoan)}</p>
-                <p className="stat-foot">{t('mortgage.results.maxLoanFoot')}</p>
+              <div className={`stat-tile ${toneByCategory[category]}`}>
+                <p className="stat-label">{t('mortgage.results.categoryLabel')}</p>
+                <p className="stat-value">{categoryCopy.title}</p>
+                <p className="stat-foot">{categoryCopy.body}</p>
               </div>
 
               <div className="stat-tile tone-brand">
-                <p className="stat-label">{t('mortgage.results.maxPrice')}</p>
-                <p className="stat-value">{fmt(result.maxPurchasePrice)}</p>
-                <p className="stat-foot">{t('mortgage.results.maxPriceFoot')}</p>
+                <p className="stat-label">{t('mortgage.results.requestedLoan')}</p>
+                <p className="stat-value">{fmt(result.requestedLoan)}</p>
+                <p className="stat-foot">{t('mortgage.results.requestedLoanFoot')}</p>
               </div>
 
               <div className="stat-tile tone-warn">
                 <p className="stat-label">{t('mortgage.results.monthlyPayment')}</p>
-                <p className="stat-value">{fmt(result.monthlyPayment)}</p>
+                <p className="stat-value">{fmt(result.requestedMonthlyPayment)}</p>
                 <p className="stat-foot">{t('mortgage.results.monthlyPaymentFoot')}</p>
               </div>
 
+              <div className="stat-tile">
+                <p className="stat-label">{t('mortgage.results.requiredEquity')}</p>
+                <p className="stat-value">{fmt(result.requiredEquity)}</p>
+                <p className="stat-foot">{t('mortgage.results.requiredEquityFoot')}</p>
+              </div>
+
               <div className="rounded-2xl border border-[var(--line)] bg-[rgba(255,250,242,0.7)] p-5">
-                <p className="field-label">{t('mortgage.results.debtDetail')}</p>
+                <p className="field-label">{t('mortgage.results.breakdown')}</p>
                 <ul className="mt-2 space-y-1.5 text-sm" style={{ listStyle: 'none', padding: 0 }}>
-                  <li><span className="text-[var(--ink-soft)]">{t('mortgage.results.debtToIncome')}:</span> <strong className="text-[var(--foreground)]">{result.debtToIncomeRatio.toFixed(1)}%</strong></li>
-                  <li><span className="text-[var(--ink-soft)]">{t('mortgage.results.paymentRatio')}:</span> <strong className="text-[var(--foreground)]">{result.paymentRatio.toFixed(1)}% {t('mortgage.results.paymentRatioSuffix')}</strong></li>
-                  <li><span className="text-[var(--ink-soft)]">{t('mortgage.results.totalInterest')}:</span> <strong className="text-[var(--foreground)]">{fmt(result.totalInterest)}</strong></li>
-                  <li><span className="text-[var(--ink-soft)]">{t('mortgage.results.totalCost')}:</span> <strong className="text-[var(--foreground)]">{fmt(result.maxLoan + result.totalInterest)}</strong></li>
+                  <li><span className="text-[var(--ink-soft)]">{t('mortgage.results.equityYouHave')}:</span> <strong className="text-[var(--foreground)]">{fmt(form.availableCashEquity)}</strong></li>
+                  <li><span className="text-[var(--ink-soft)]">{t('mortgage.results.equityGap')}:</span> <strong className="text-[var(--foreground)]">{fmt(result.equityGap)}</strong></li>
+                  <li><span className="text-[var(--ink-soft)]">{t('mortgage.results.ltvValue')}:</span> <strong className="text-[var(--foreground)]">{fmt(result.ltvValue)}</strong></li>
+                  <li><span className="text-[var(--ink-soft)]">{t('mortgage.results.maxLoanByLtv')}:</span> <strong className="text-[var(--foreground)]">{fmt(result.maxLoanByLtv)}</strong></li>
+                  <li><span className="text-[var(--ink-soft)]">{t('mortgage.results.maxLoanSafe')}:</span> <strong className="text-[var(--foreground)]">{fmt(result.maxLoanSafe)}</strong></li>
+                  <li><span className="text-[var(--ink-soft)]">{t('mortgage.results.maxLoanStretched')}:</span> <strong className="text-[var(--foreground)]">{fmt(result.maxLoanStretched)}</strong></li>
+                  <li><span className="text-[var(--ink-soft)]">{t('mortgage.results.maxLoanHard')}:</span> <strong className="text-[var(--foreground)]">{fmt(result.maxLoanHard)}</strong></li>
+                  <li><span className="text-[var(--ink-soft)]">{t('mortgage.results.disposableIncome')}:</span> <strong className="text-[var(--foreground)]">{fmt(result.disposableMonthlyIncome)}</strong></li>
+                  <li><span className="text-[var(--ink-soft)]">{t('mortgage.results.pti')}:</span> <strong className="text-[var(--foreground)]">{Number.isFinite(result.requestedPti) ? pct(result.requestedPti) : '—'}</strong></li>
                 </ul>
               </div>
 
-              <div className={`callout ${result.debtToIncomeRatio > 50 ? 'callout-danger' : 'callout-warn'}`}>
+              <div className={`callout ${calloutByCategory[category]}`}>
                 <span className="callout-mark">!</span>
-                <span>{t('mortgage.results.warnPrefix')} <strong>{result.debtToIncomeRatio.toFixed(1)}%</strong>.</span>
+                <span>{categoryCopy.body}</span>
               </div>
+
+              {!form.appraisedMarketValue && form.useSubsidizedRules && (
+                <div className="callout callout-note">
+                  <span className="callout-mark">i</span>
+                  <span>{t('mortgage.results.warnings.noAppraisal')}</span>
+                </div>
+              )}
+              {result.equityGap > 0 && (
+                <div className="callout callout-danger">
+                  <span className="callout-mark">!</span>
+                  <span>{t('mortgage.results.warnings.equityGap')}</span>
+                </div>
+              )}
+              {result.requestedPti > 0.40 && Number.isFinite(result.requestedPti) && (
+                <div className="callout callout-warn">
+                  <span className="callout-mark">!</span>
+                  <span>{t('mortgage.results.warnings.highPti')}</span>
+                </div>
+              )}
+              {result.requestedLoan > result.maxLoanByLtv && (
+                <div className="callout callout-danger">
+                  <span className="callout-mark">!</span>
+                  <span>{t('mortgage.results.warnings.ltvBreach')}</span>
+                </div>
+              )}
             </div>
           ) : (
             <div className="rounded-2xl border border-dashed border-[var(--line)] p-8 text-center">

@@ -2,58 +2,129 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { calculateAffordability } from '@/lib/calculators'
+import {
+  calculateAffordability,
+  type BudgetInputs,
+  type BudgetResult,
+  type ResultCategory,
+} from '@/lib/calculators'
 import Button from '@/components/shared/Button'
 import Input from '@/components/shared/Input'
 import { useT } from '@/lib/i18n/LocaleProvider'
 
-interface BudgetInput {
-  monthlySavings: number
-  monthlyIncome: number
-  monthlyExpenses: number
-  currentSavings: number
-  existingDebts: number
+interface FormState {
+  netMonthlyHouseholdIncome: number
+  currentMonthlyExpenses: number
+  existingMonthlyLoanPayments: number
+  monthlyRentUntilEntry: number
+  availableCashSavings: number
+  emergencyFundToKeep: number
+  expectedExtraPurchaseCosts: number
+  hasEligibleGrant: boolean
+  annualInterestRatePct: number
+  termYears: number
 }
 
-interface BudgetResult {
-  monthlyCapacity: number
-  downPaymentAvailable: number
-  maxPurchasePrice: number
-  monthlyAvailable: number
-  debtRatio: number
-  savingsRate: number
+const initial: FormState = {
+  netMonthlyHouseholdIncome: 0,
+  currentMonthlyExpenses: 0,
+  existingMonthlyLoanPayments: 0,
+  monthlyRentUntilEntry: 0,
+  availableCashSavings: 0,
+  emergencyFundToKeep: 0,
+  expectedExtraPurchaseCosts: 50_000,
+  hasEligibleGrant: false,
+  annualInterestRatePct: 5.0,
+  termYears: 30,
 }
 
-const fieldNames: (keyof BudgetInput)[] = ['monthlyIncome', 'monthlyExpenses', 'currentSavings', 'existingDebts']
-
-type Field = { label: string; placeholder: string; hint?: string }
 type Item = { label: string; detail: string }
 type Source = { label: string; body: string }
+type FieldCopy = { label: string; placeholder?: string; hint?: string }
+type ToggleCopy = { label: string; hint?: string }
+
+const toneByCategory: Record<ResultCategory, string> = {
+  green: 'tone-good',
+  yellow: 'tone-warn',
+  orange: 'tone-orange',
+  red: 'tone-danger',
+}
 
 export default function BudgetCalculatorPage() {
   const t = useT()
-  const fieldsCopy = t<Field[]>('budget.form.fields')
   const rulesItems = t<Item[]>('budget.rules.items')
   const grantsItems = t<Item[]>('budget.rules.grants')
   const sources = t<Source[]>('budget.sources.items')
+  const f = (key: string) => t<FieldCopy>(`budget.form.${key}`)
+  const toggle = (key: string) => t<ToggleCopy>(`budget.form.${key}`)
 
-  const [inputs, setInputs] = useState<BudgetInput>({
-    monthlySavings: 0,
-    monthlyIncome: 0,
-    monthlyExpenses: 0,
-    currentSavings: 0,
-    existingDebts: 0,
-  })
+  const [form, setForm] = useState<FormState>(initial)
   const [result, setResult] = useState<BudgetResult | null>(null)
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onNumber = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    setInputs(prev => ({ ...prev, [name]: parseFloat(value) || 0 }))
+    setForm(prev => ({ ...prev, [name]: parseFloat(value) || 0 }))
+  }
+  const onBool = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target
+    setForm(prev => ({ ...prev, [name]: checked }))
   }
 
-  const handleCalculate = () => setResult(calculateAffordability(inputs) as BudgetResult)
+  const handleCalculate = () => {
+    const inputs: BudgetInputs = {
+      netMonthlyHouseholdIncome: form.netMonthlyHouseholdIncome,
+      currentMonthlyExpenses: form.currentMonthlyExpenses,
+      existingMonthlyLoanPayments: form.existingMonthlyLoanPayments,
+      monthlyRentUntilEntry: form.monthlyRentUntilEntry || undefined,
+      availableCashSavings: form.availableCashSavings,
+      emergencyFundToKeep: form.emergencyFundToKeep || undefined,
+      expectedExtraPurchaseCosts: form.expectedExtraPurchaseCosts,
+      hasEligibleGrant: form.hasEligibleGrant,
+      annualInterestRate: form.annualInterestRatePct / 100,
+      termYears: form.termYears,
+    }
+    setResult(calculateAffordability(inputs))
+  }
 
   const fmt = (n: number) => `₪${Math.round(n).toLocaleString('he-IL')}`
+
+  const numberField = (
+    name: keyof FormState,
+    copy: FieldCopy,
+    step?: string,
+  ) => (
+    <div key={name as string}>
+      <label className="field-label" htmlFor={name as string}>{copy.label}</label>
+      <Input
+        id={name as string}
+        type="number"
+        name={name as string}
+        value={(form[name] as number) || ''}
+        onChange={onNumber}
+        placeholder={copy.placeholder}
+        step={step}
+      />
+      {copy.hint && <p className="mt-1.5 text-xs text-[var(--ink-soft)]">{copy.hint}</p>}
+    </div>
+  )
+
+  const checkboxField = (name: keyof FormState, copy: ToggleCopy) => (
+    <label key={name as string} className="flex items-start gap-3 cursor-pointer">
+      <input
+        type="checkbox"
+        name={name as string}
+        checked={form[name] as boolean}
+        onChange={onBool}
+        className="mt-1 h-4 w-4 accent-[var(--brand)]"
+      />
+      <span>
+        <span className="block text-sm font-semibold text-[var(--foreground)]">{copy.label}</span>
+        {copy.hint && <span className="block text-xs text-[var(--ink-soft)] mt-0.5">{copy.hint}</span>}
+      </span>
+    </label>
+  )
+
+  const verifiedTone = result ? toneByCategory[result.verified.category] : 'tone-brand'
 
   return (
     <div className="page-shell">
@@ -95,23 +166,19 @@ export default function BudgetCalculatorPage() {
           <p className="mb-6">{t('budget.form.intro')}</p>
 
           <div className="space-y-5">
-            {fieldNames.map((name, idx) => {
-              const f = fieldsCopy[idx]
-              return (
-                <div key={name}>
-                  <label className="field-label" htmlFor={name}>{f.label}</label>
-                  <Input
-                    id={name}
-                    type="number"
-                    name={name}
-                    value={inputs[name] || ''}
-                    onChange={handleInputChange}
-                    placeholder={f.placeholder}
-                  />
-                  {f.hint && <p className="mt-1.5 text-xs text-[var(--ink-soft)]">{f.hint}</p>}
-                </div>
-              )
-            })}
+            {numberField('netMonthlyHouseholdIncome', f('netIncome'))}
+            {numberField('currentMonthlyExpenses', f('expenses'))}
+            {numberField('existingMonthlyLoanPayments', f('existingLoans'))}
+            {numberField('monthlyRentUntilEntry', f('rentUntilEntry'))}
+            {numberField('availableCashSavings', f('cashSavings'))}
+            {numberField('emergencyFundToKeep', f('emergencyFund'))}
+            {numberField('expectedExtraPurchaseCosts', f('extraCosts'))}
+            {numberField('annualInterestRatePct', f('interestRate'), '0.1')}
+            {numberField('termYears', f('termYears'))}
+
+            <div className="pt-2">
+              {checkboxField('hasEligibleGrant', toggle('hasGrant'))}
+            </div>
 
             <Button onClick={handleCalculate} className="mt-4 w-full">
               {t('budget.form.calculate')}
@@ -123,29 +190,31 @@ export default function BudgetCalculatorPage() {
           <h2>{t('budget.results.title')}</h2>
           {result ? (
             <div className="space-y-4">
+              <div className={`stat-tile ${verifiedTone}`}>
+                <p className="stat-label">{t('budget.results.estimatedMaxPrice')}</p>
+                <p className="stat-value">{fmt(result.estimatedMaxPurchasePrice)}</p>
+                <p className="stat-foot">{t('budget.results.estimatedMaxPriceFoot')}</p>
+              </div>
+
               <div className="stat-tile tone-good">
-                <p className="stat-label">{t('budget.results.monthlyCapacity')}</p>
-                <p className="stat-value">{fmt(result.monthlyCapacity)}</p>
-                <p className="stat-foot">{t('budget.results.monthlyCapacityFoot')}</p>
+                <p className="stat-label">{t('budget.results.equityForApartment')}</p>
+                <p className="stat-value">{fmt(result.availableEquityForApartment)}</p>
+                <p className="stat-foot">{t('budget.results.equityForApartmentFoot')}</p>
               </div>
 
               <div className="stat-tile tone-brand">
-                <p className="stat-label">{t('budget.results.downPayment')}</p>
-                <p className="stat-value">{fmt(result.downPaymentAvailable)}</p>
-                <p className="stat-foot">{t('budget.results.downPaymentFoot')}</p>
-              </div>
-
-              <div className="stat-tile tone-warn">
-                <p className="stat-label">{t('budget.results.maxPrice')}</p>
-                <p className="stat-value">{fmt(result.maxPurchasePrice)}</p>
-                <p className="stat-foot">{t('budget.results.maxPriceFoot')}</p>
+                <p className="stat-label">{t('budget.results.safeMonthlyCapacity')}</p>
+                <p className="stat-value">{fmt(result.safeMonthlyCapacity)}</p>
+                <p className="stat-foot">{t('budget.results.safeMonthlyCapacityFoot')}</p>
               </div>
 
               <div className="rounded-2xl border border-[var(--line)] bg-[rgba(255,250,242,0.7)] p-5">
                 <p className="field-label">{t('budget.results.breakdown')}</p>
                 <ul className="mt-2 space-y-1.5 text-sm" style={{ listStyle: 'none', padding: 0 }}>
-                  <li><span className="text-[var(--ink-soft)]">{t('budget.results.monthlyAvailable')}:</span> <strong className="text-[var(--foreground)]">{fmt(result.monthlyAvailable)}</strong></li>
-                  <li><span className="text-[var(--ink-soft)]">{t('budget.results.debtRatio')}:</span> <strong className="text-[var(--foreground)]">{result.debtRatio.toFixed(1)}%</strong></li>
+                  <li><span className="text-[var(--ink-soft)]">{t('budget.results.monthlyFreeCashflow')}:</span> <strong className="text-[var(--foreground)]">{fmt(result.monthlyFreeCashflow)}</strong></li>
+                  <li><span className="text-[var(--ink-soft)]">{t('budget.results.maxLoanByIncome')}:</span> <strong className="text-[var(--foreground)]">{fmt(result.maxLoanByIncome)}</strong></li>
+                  <li><span className="text-[var(--ink-soft)]">{t('budget.results.emergencyReserve')}:</span> <strong className="text-[var(--foreground)]">{fmt(result.emergencyFundToKeep)}</strong></li>
+                  <li><span className="text-[var(--ink-soft)]">{t('budget.results.extraCostsReserved')}:</span> <strong className="text-[var(--foreground)]">{fmt(result.expectedExtraPurchaseCosts)}</strong></li>
                   <li><span className="text-[var(--ink-soft)]">{t('budget.results.savingsRate')}:</span> <strong className="text-[var(--foreground)]">{result.savingsRate.toFixed(0)}% {t('budget.results.savingsRateSuffix')}</strong></li>
                 </ul>
               </div>

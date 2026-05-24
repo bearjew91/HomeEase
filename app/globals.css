@@ -344,6 +344,16 @@ h1, h2, h3, h4, h5, h6 {
   background: linear-gradient(180deg, rgba(220, 150, 60, 0.12), rgba(220, 150, 60, 0.03));
 }
 .stat-tile.tone-warn .stat-value { color: var(--amber-deep); }
+.stat-tile.tone-orange {
+  border-color: rgba(196, 88, 30, 0.34);
+  background: linear-gradient(180deg, rgba(210, 95, 30, 0.14), rgba(210, 95, 30, 0.04));
+}
+.stat-tile.tone-orange .stat-value { color: #b04a14; }
+.stat-tile.tone-danger {
+  border-color: rgba(180, 60, 40, 0.34);
+  background: linear-gradient(180deg, rgba(180, 60, 40, 0.12), rgba(180, 60, 40, 0.03));
+}
+.stat-tile.tone-danger .stat-value { color: var(--rust-danger); }
 
 .callout {
   border-radius: 1.1rem;
