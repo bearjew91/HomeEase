@@ -1,86 +1,141 @@
 'use client'
 
+import Link from 'next/link'
+import { useT } from '@/lib/i18n/LocaleProvider'
+
+type Item = { label: string; detail?: string }
+type Step = { title: string; body: string }
+type DocGroup = { title: string; items: string[] }
+type Source = { label: string; body: string }
+
 export default function EligibilityPage() {
+  const t = useT()
+
+  const tracks = t<Item[]>('eligibility.tracks.items')
+  const ownership = t<Item[]>('eligibility.ownership.items')
+  const docGroups = t<DocGroup[]>('eligibility.docs.groups')
+  const steps = t<Step[]>('eligibility.sequence.steps')
+  const sources = t<Source[]>('eligibility.sources.items')
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      <div className="mb-12">
-        <h1 className="text-4xl font-bold mb-4">Eligibility Guide</h1>
-        <p className="text-xl text-gray-600">
-          Understand if you qualify for Israeli housing lotteries and what it means to be eligible.
+    <div className="page-shell">
+      <header className="mb-10">
+        <span className="page-eyebrow">{t('eligibility.eyebrow')}</span>
+        <h1 className="page-title">{t('eligibility.title')}</h1>
+        <p className="page-lede">{t('eligibility.lede')}</p>
+        <p className="mt-4 text-xs uppercase tracking-[0.18em] text-[var(--ink-soft)]">
+          {t('common.lastUpdated')}: {t('eligibility.lastUpdated')}
         </p>
+      </header>
+
+      <div className="callout callout-note mb-10">
+        <span className="callout-mark">i</span>
+        <span>{t('eligibility.programNote')}</span>
       </div>
 
-      <div className="bg-blue-50 border-l-4 border-primary p-6 mb-8">
-        <p className="text-lg">
-          <strong>📝 Note:</strong> This is placeholder content. Your research data will be added here with official eligibility requirements from the Ministry of Housing.
-        </p>
-      </div>
-
-      <div className="space-y-8">
-        <section>
-          <h2 className="text-2xl font-bold mb-4">Who Can Apply?</h2>
-          <p className="text-gray-700 mb-4">
-            Placeholder: Information about general eligibility criteria will be filled in based on research data.
-          </p>
-          <div className="bg-gray-50 p-6 rounded-lg">
-            <ul className="space-y-2 text-gray-700">
-              <li>• Age requirements</li>
-              <li>• Citizenship and residency requirements</li>
-              <li>• Income eligibility caps</li>
-              <li>• Prior ownership restrictions</li>
-              <li>• Military service requirements (if applicable)</li>
-            </ul>
-          </div>
-        </section>
-
-        <section>
-          <h2 className="text-2xl font-bold mb-4">Required Documents</h2>
-          <p className="text-gray-700 mb-4">
-            You'll need to prepare certain documents. Here's what to gather:
-          </p>
-          <div className="bg-gray-50 p-6 rounded-lg">
-            <h3 className="font-semibold mb-3">Personal Documents:</h3>
-            <ul className="space-y-2 text-gray-700 mb-6">
-              <li>• ID card or passport</li>
-              <li>• Marriage certificate (if applicable)</li>
-              <li>• Birth certificates for children</li>
-            </ul>
-            
-            <h3 className="font-semibold mb-3">Financial Documents:</h3>
-            <ul className="space-y-2 text-gray-700">
-              <li>• Bank statements (last 12 months)</li>
-              <li>• Income tax returns</li>
-              <li>• Salary slips</li>
-              <li>• List of existing debts</li>
-            </ul>
-          </div>
-        </section>
-
-        <section>
-          <h2 className="text-2xl font-bold mb-4">Registration Process</h2>
-          <p className="text-gray-700 mb-4">
-            The eligibility process typically follows these steps:
-          </p>
-          <div className="space-y-4">
-            {[1, 2, 3, 4].map((step) => (
-              <div key={step} className="border-l-4 border-primary pl-6 py-2">
-                <h3 className="font-semibold">Step {step}</h3>
-                <p className="text-gray-600">Detailed steps will be added based on research data</p>
+      <section className="surface-card">
+        <h2>{t('eligibility.tracks.title')}</h2>
+        <p className="mb-5">{t('eligibility.tracks.intro')}</p>
+        <div className="space-y-3">
+          {tracks.map((c, idx) => (
+            <div key={c.label} className="grid grid-cols-[3rem_1fr] items-baseline gap-4 border-t border-[var(--line)] pt-3 first:border-t-0 first:pt-0">
+              <span className="font-display text-xl text-[var(--brand-deep)]" style={{ fontFamily: 'var(--font-display)' }}>
+                {String(idx + 1).padStart(2, '0')}
+              </span>
+              <div>
+                <p className="font-semibold text-[var(--foreground)]" style={{ fontSize: '0.95rem' }}>{c.label}</p>
+                <p className="text-sm text-[var(--ink-soft)]">{c.detail}</p>
               </div>
-            ))}
-          </div>
-        </section>
+            </div>
+          ))}
+        </div>
+        <p className="mt-5 text-sm text-[var(--ink-soft)]">{t('eligibility.tracks.residency')}</p>
+      </section>
+
+      <div className="divider-rule" />
+
+      <div className="callout callout-good mb-10">
+        <span className="callout-mark">★</span>
+        <div>
+          <p className="font-semibold" style={{ marginBottom: '0.35rem' }}>{t('eligibility.reservists.title')}</p>
+          <p style={{ margin: 0, color: 'inherit', opacity: 0.9 }}>{t('eligibility.reservists.body')}</p>
+        </div>
       </div>
 
-      <div className="mt-12 p-6 bg-accent/10 rounded-lg">
-        <h3 className="font-bold text-lg mb-2">Next Step</h3>
-        <p className="text-gray-700 mb-4">
-          Once you confirm you're eligible, move on to understanding your budget and mortgage capacity.
-        </p>
-        <a href="/budget-calculator" className="inline-block bg-primary text-white px-6 py-2 rounded-lg hover:bg-secondary transition-colors">
-          Go to Budget Calculator
-        </a>
-      </div>
+      <section className="surface-card">
+        <h2>{t('eligibility.ownership.title')}</h2>
+        <p className="mb-5">{t('eligibility.ownership.intro')}</p>
+        <div className="space-y-3">
+          {ownership.map(o => (
+            <div key={o.label} className="border-t border-[var(--line)] pt-3 first:border-t-0 first:pt-0">
+              <p className="font-semibold text-[var(--foreground)]" style={{ fontSize: '0.95rem' }}>{o.label}</p>
+              <p className="text-sm text-[var(--ink-soft)]">{o.detail}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div className="divider-rule" />
+
+      <section className="surface-card">
+        <h2>{t('eligibility.income.title')}</h2>
+        <p>{t('eligibility.income.body')}</p>
+      </section>
+
+      <div className="divider-rule" />
+
+      <section className="surface-card">
+        <h2>{t('eligibility.docs.title')}</h2>
+        <p className="mb-6">{t('eligibility.docs.intro')}</p>
+        <div className="grid gap-4 md:grid-cols-2">
+          {docGroups.map(g => (
+            <div key={g.title} className="rounded-2xl border border-[var(--line)] bg-[rgba(255,250,242,0.7)] p-5">
+              <p className="field-label" style={{ color: 'var(--brand)' }}>{g.title}</p>
+              <ul className="mt-3">{g.items.map(i => <li key={i}>{i}</li>)}</ul>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div className="divider-rule" />
+
+      <section className="surface-card">
+        <h2>{t('eligibility.sequence.title')}</h2>
+        <p className="mb-6">{t('eligibility.sequence.intro')}</p>
+        <div className="timeline">
+          {steps.map((step, idx) => (
+            <div key={step.title} className="timeline-row">
+              <div className="timeline-num">{String(idx + 1).padStart(2, '0')}</div>
+              <div>
+                <h3>{step.title}</h3>
+                <p>{step.body}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div className="divider-rule" />
+
+      <section className="surface-card">
+        <h2>{t('eligibility.sources.title')}</h2>
+        <p className="mb-5 text-sm text-[var(--ink-soft)]">{t('eligibility.sources.disclaimer')}</p>
+        <div className="space-y-3">
+          {sources.map(s => (
+            <div key={s.label} className="border-t border-[var(--line)] pt-3 first:border-t-0 first:pt-0">
+              <p className="font-semibold text-[var(--foreground)]" style={{ fontSize: '0.95rem' }}>{s.label}</p>
+              <p className="text-sm text-[var(--ink-soft)]">{s.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <aside className="next-step">
+        <span className="step-eyebrow">{t('eligibility.next.eyebrow')}</span>
+        <h3>{t('eligibility.next.title')}</h3>
+        <p>{t('eligibility.next.body')}</p>
+        <Link href="/budget-calculator" className="step-cta">{t('eligibility.next.cta')}</Link>
+      </aside>
     </div>
   )
 }

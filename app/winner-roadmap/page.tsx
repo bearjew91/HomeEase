@@ -1,132 +1,148 @@
 'use client'
 
+import Link from 'next/link'
+import { useT } from '@/lib/i18n/LocaleProvider'
+
+type Phase = { days: string; title: string; tasks: string[] }
+type Item = { label: string; detail: string }
+type Source = { label: string; body: string }
+
 export default function WinnerRoadmapPage() {
+  const t = useT()
+
+  const phases = t<Phase[]>('winner.timeline.phases')
+  const hardDeadlines = t<Item[]>('winner.hardDeadlines.items')
+  const docs = t<Item[]>('winner.docs.items')
+  const declining = t<Item[]>('winner.declining.items')
+  const clauses = t<Item[]>('winner.clauses.items')
+  const sources = t<Source[]>('winner.sources.items')
+  const phaseLabel = t<string>('winner.timeline.phaseLabel')
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      <div className="mb-12">
-        <h1 className="text-4xl font-bold mb-4">Winner Roadmap</h1>
-        <p className="text-xl text-gray-600">
-          Congratulations! Here's exactly what to do after winning a housing lottery.
+    <div className="page-shell">
+      <header className="mb-10">
+        <span className="page-eyebrow">{t('winner.eyebrow')}</span>
+        <h1 className="page-title">{t('winner.title')}</h1>
+        <p className="page-lede">{t('winner.lede')}</p>
+        <p className="mt-4 text-xs uppercase tracking-[0.18em] text-[var(--ink-soft)]">
+          {t('common.lastUpdated')}: {t('winner.lastUpdated')}
         </p>
+      </header>
+
+      <div className="callout callout-good mb-10">
+        <span className="callout-mark">✓</span>
+        <span>{t('winner.banner')}</span>
       </div>
 
-      <div className="bg-green-50 border-l-4 border-green-600 p-6 mb-8">
-        <p className="text-lg">
-          <strong>🎉 Important:</strong> Placeholder content. This will include detailed timeline, documents, and critical deadlines once research is complete.
-        </p>
-      </div>
+      <section className="surface-card">
+        <h2>{t('winner.timeline.title')}</h2>
+        <p className="mb-6">{t('winner.timeline.intro')}</p>
 
-      <div className="space-y-8">
-        <section>
-          <h2 className="text-2xl font-bold mb-6">Critical Timeline (First 30 Days)</h2>
-          <div className="space-y-4">
-            {[
-              { days: 'Day 1-3', title: 'Notification & Confirmation', tasks: ['Receive official notification', 'Confirm your interest in the unit', 'Get reference number'] },
-              { days: 'Day 4-7', title: 'Document Gathering', tasks: ['Prepare all documents', 'Organize financial records', 'Get pre-approval letter from bank'] },
-              { days: 'Day 8-14', title: 'Bank & Mortgage', tasks: ['Submit full mortgage application', 'Provide all financial documentation', 'Schedule building inspection'] },
-              { days: 'Day 15-21', title: 'Building Inspection', tasks: ['Inspect apartment condition', 'Review contract terms', 'Approve building inspection report'] },
-              { days: 'Day 22-30', title: 'Contract & Closing', tasks: ['Sign purchase agreement', 'Sign mortgage documents', 'Transfer funds'] },
-            ].map((phase, idx) => (
-              <div key={idx} className="border-l-4 border-primary pl-6 py-4">
-                <h3 className="font-bold text-lg text-primary mb-2">{phase.days}</h3>
-                <h4 className="font-semibold text-lg mb-3">{phase.title}</h4>
-                <ul className="space-y-1">
-                  {phase.tasks.map((task, tidx) => (
-                    <li key={tidx} className="text-gray-700">• {task}</li>
-                  ))}
+        <div className="space-y-5">
+          {phases.map((p, idx) => (
+            <article key={p.title} className="grid gap-4 rounded-2xl border border-[var(--line)] bg-[rgba(255,250,242,0.7)] p-5 md:grid-cols-[12rem_1fr]">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--brand)]">{phaseLabel} {String(idx + 1).padStart(2, '0')}</p>
+                <p className="mt-1 font-display text-lg text-[var(--foreground)]" style={{ fontFamily: 'var(--font-display)' }}>{p.days}</p>
+              </div>
+              <div>
+                <h3>{p.title}</h3>
+                <ul className="mt-2">
+                  {p.tasks.map(task => <li key={task}>{task}</li>)}
                 </ul>
               </div>
-            ))}
-          </div>
-        </section>
+            </article>
+          ))}
+        </div>
+      </section>
 
-        <section>
-          <h2 className="text-2xl font-bold mb-4">Essential Documents You'll Need</h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <h3 className="font-semibold text-lg mb-4">Personal</h3>
-              <ul className="space-y-2 text-gray-700">
-                <li>✓ ID card/passport</li>
-                <li>✓ Marriage certificate</li>
-                <li>✓ Birth certificates (children)</li>
-                <li>✓ Divorce decree (if applicable)</li>
-              </ul>
-            </div>
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <h3 className="font-semibold text-lg mb-4">Financial</h3>
-              <ul className="space-y-2 text-gray-700">
-                <li>✓ Bank statements (3 months)</li>
-                <li>✓ Tax returns (last 2 years)</li>
-                <li>✓ Salary slips</li>
-                <li>✓ Employment letter</li>
-              </ul>
-            </div>
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <h3 className="font-semibold text-lg mb-4">Housing</h3>
-              <ul className="space-y-2 text-gray-700">
-                <li>✓ Building inspection report</li>
-                <li>✓ Mortgage pre-approval</li>
-                <li>✓ Property insurance quote</li>
-                <li>✓ Purchase agreement</li>
-              </ul>
-            </div>
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <h3 className="font-semibold text-lg mb-4">Legal</h3>
-              <ul className="space-y-2 text-gray-700">
-                <li>✓ Criminal background check</li>
-                <li>✓ Credit report authorization</li>
-                <li>✓ Loan documents</li>
-                <li>✓ Final closing papers</li>
-              </ul>
-            </div>
-          </div>
-        </section>
+      <div className="divider-rule" />
 
-        <section>
-          <h2 className="text-2xl font-bold mb-4">Common Mistakes to Avoid</h2>
-          <div className="space-y-4">
-            {[
-              { mistake: 'Missing deadlines', solution: 'Mark all dates on your calendar immediately. Most deadlines cannot be extended.' },
-              { mistake: 'Making major purchases', solution: 'Do NOT make any large purchases or credit applications during this period. It affects your debt-to-income ratio.' },
-              { mistake: 'Changing jobs', solution: 'Stay in your current employment if possible. Job changes can delay mortgage approval.' },
-              { mistake: 'Not reviewing documents', solution: 'Read everything carefully. Errors now can cause problems later.' },
-              { mistake: 'Skipping the inspection', solution: 'Always inspect the apartment. You\'re investing hundreds of thousands of shekels.' },
-            ].map((item, idx) => (
-              <div key={idx} className="bg-red-50 border-l-4 border-red-600 p-4 rounded">
-                <h3 className="font-semibold text-red-900 mb-1">❌ {item.mistake}</h3>
-                <p className="text-red-800">✓ {item.solution}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+      <section className="surface-card">
+        <h2>{t('winner.hardDeadlines.title')}</h2>
+        <p className="mb-5">{t('winner.hardDeadlines.intro')}</p>
+        <div className="space-y-3">
+          {hardDeadlines.map(it => (
+            <div key={it.label} className="border-t border-[var(--line)] pt-3 first:border-t-0 first:pt-0">
+              <p className="font-semibold text-[var(--foreground)]" style={{ fontSize: '0.95rem' }}>{it.label}</p>
+              <p className="text-sm text-[var(--ink-soft)]">{it.detail}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
-        <section>
-          <h2 className="text-2xl font-bold mb-4">After Closing</h2>
-          <div className="bg-accent/10 p-6 rounded-lg">
-            <p className="text-gray-700 mb-4">
-              Once you've closed the deal, here's what comes next:
-            </p>
-            <ul className="space-y-3 text-gray-700">
-              <li><strong>1. Receive keys:</strong> Take possession of your new home</li>
-              <li><strong>2. Register property:</strong> Update your ID and tax records</li>
-              <li><strong>3. Set up utilities:</strong> Arrange electric, water, internet</li>
-              <li><strong>4. Arrange moving:</strong> Move into your new home</li>
-              <li><strong>5. First mortgage payment:</strong> Typically due 30-60 days after closing</li>
-              <li><strong>6. Property taxes:</strong> Enroll in municipal property tax system</li>
-            </ul>
-          </div>
-        </section>
+      <div className="divider-rule" />
+
+      <section className="surface-card">
+        <h2>{t('winner.docs.title')}</h2>
+        <p className="mb-5">{t('winner.docs.intro')}</p>
+        <div className="space-y-3">
+          {docs.map(d => (
+            <div key={d.label} className="border-t border-[var(--line)] pt-3 first:border-t-0 first:pt-0">
+              <p className="font-semibold text-[var(--foreground)]" style={{ fontSize: '0.95rem' }}>{d.label}</p>
+              <p className="text-sm text-[var(--ink-soft)]">{d.detail}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div className="callout callout-note my-10">
+        <span className="callout-mark">i</span>
+        <div>
+          <p className="font-semibold" style={{ marginBottom: '0.35rem' }}>{t('winner.badakBayit.title')}</p>
+          <p style={{ margin: 0, color: 'inherit', opacity: 0.9 }}>{t('winner.badakBayit.body')}</p>
+        </div>
       </div>
 
-      <div className="mt-12 p-6 bg-accent/10 rounded-lg">
-        <h3 className="font-bold text-lg mb-2">You're Ready!</h3>
-        <p className="text-gray-700 mb-4">
-          You've now completed the entire HomeEase planning journey. Go back and review each section anytime, or prepare to apply for lotteries.
-        </p>
-        <a href="/" className="inline-block bg-primary text-white px-6 py-2 rounded-lg hover:bg-secondary transition-colors">
-          Back to Home
-        </a>
-      </div>
+      <section className="surface-card">
+        <h2>{t('winner.declining.title')}</h2>
+        <p className="mb-5">{t('winner.declining.intro')}</p>
+        <div className="space-y-3">
+          {declining.map(it => (
+            <div key={it.label} className="border-t border-[var(--line)] pt-3 first:border-t-0 first:pt-0">
+              <p className="font-semibold text-[var(--foreground)]" style={{ fontSize: '0.95rem' }}>{it.label}</p>
+              <p className="text-sm text-[var(--ink-soft)]">{it.detail}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div className="divider-rule" />
+
+      <section className="surface-card">
+        <h2>{t('winner.clauses.title')}</h2>
+        <p className="mb-5">{t('winner.clauses.intro')}</p>
+        <div className="space-y-3">
+          {clauses.map(c => (
+            <div key={c.label} className="border-t border-[var(--line)] pt-3 first:border-t-0 first:pt-0">
+              <p className="font-semibold text-[var(--foreground)]" style={{ fontSize: '0.95rem' }}>{c.label}</p>
+              <p className="text-sm text-[var(--ink-soft)]">{c.detail}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div className="divider-rule" />
+
+      <section className="surface-card">
+        <h2>{t('winner.sources.title')}</h2>
+        <p className="mb-5 text-sm text-[var(--ink-soft)]">{t('winner.sources.disclaimer')}</p>
+        <div className="space-y-3">
+          {sources.map(s => (
+            <div key={s.label} className="border-t border-[var(--line)] pt-3 first:border-t-0 first:pt-0">
+              <p className="font-semibold text-[var(--foreground)]" style={{ fontSize: '0.95rem' }}>{s.label}</p>
+              <p className="text-sm text-[var(--ink-soft)]">{s.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <aside className="next-step">
+        <span className="step-eyebrow">{t('winner.next.eyebrow')}</span>
+        <h3>{t('winner.next.title')}</h3>
+        <p>{t('winner.next.body')}</p>
+        <Link href="/" className="step-cta">{t('winner.next.cta')}</Link>
+      </aside>
     </div>
   )
 }

@@ -1,95 +1,121 @@
 'use client'
 
+import Link from 'next/link'
+import { useT } from '@/lib/i18n/LocaleProvider'
+
+type Item = { label: string; detail?: string; body?: string }
+type Step = { title: string; desc: string }
+type Row = { window: string; detail: string }
+type Source = { label: string; body: string }
+
 export default function RegistrationPage() {
+  const t = useT()
+
+  const cycle = t<Item[]>('registration.cycle.items')
+  const steps = t<Step[]>('registration.flow.steps')
+  const where = t<Item[]>('registration.where.items')
+  const afterReg = t<Row[]>('registration.after.rows')
+  const sources = t<Source[]>('registration.sources.items')
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      <div className="mb-12">
-        <h1 className="text-4xl font-bold mb-4">Registration Guide</h1>
-        <p className="text-xl text-gray-600">
-          Step-by-step guide to registering for housing lotteries.
+    <div className="page-shell">
+      <header className="mb-10">
+        <span className="page-eyebrow">{t('registration.eyebrow')}</span>
+        <h1 className="page-title">{t('registration.title')}</h1>
+        <p className="page-lede">{t('registration.lede')}</p>
+        <p className="mt-4 text-xs uppercase tracking-[0.18em] text-[var(--ink-soft)]">
+          {t('common.lastUpdated')}: {t('registration.lastUpdated')}
         </p>
+      </header>
+
+      <section className="surface-card">
+        <h2>{t('registration.cycle.title')}</h2>
+        <p className="mb-5">{t('registration.cycle.intro')}</p>
+        <div className="space-y-3">
+          {cycle.map(c => (
+            <div key={c.label} className="border-t border-[var(--line)] pt-3 first:border-t-0 first:pt-0">
+              <p className="font-semibold text-[var(--foreground)]" style={{ fontSize: '0.95rem' }}>{c.label}</p>
+              <p className="text-sm text-[var(--ink-soft)]">{c.detail}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div className="divider-rule" />
+
+      <section className="surface-card">
+        <h2>{t('registration.flow.title')}</h2>
+        <p className="mb-6">{t('registration.flow.intro')}</p>
+
+        <div className="timeline">
+          {steps.map((s, idx) => (
+            <div key={s.title} className="timeline-row">
+              <div className="timeline-num">{String(idx + 1).padStart(2, '0')}</div>
+              <div>
+                <h3>{s.title}</h3>
+                <p>{s.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div className="callout callout-warn my-10">
+        <span className="callout-mark">!</span>
+        <div>
+          <p className="font-semibold" style={{ marginBottom: '0.35rem' }}>{t('registration.benMakom.title')}</p>
+          <p style={{ margin: 0, color: 'inherit', opacity: 0.9 }}>{t('registration.benMakom.body')}</p>
+        </div>
       </div>
 
-      <div className="bg-blue-50 border-l-4 border-primary p-6 mb-8">
-        <p className="text-lg">
-          <strong>📝 Note:</strong> Placeholder content. This will be filled with official registration steps and links once research is complete.
-        </p>
-      </div>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <section className="surface-card">
+          <h2>{t('registration.where.title')}</h2>
+          <p className="mb-4">{t('registration.where.intro')}</p>
+          <ul>
+            {where.map(w => (
+              <li key={w.label}>
+                <strong className="text-[var(--foreground)]">{w.label} —</strong> {w.body}
+              </li>
+            ))}
+          </ul>
+        </section>
 
-      <div className="space-y-8">
-        <section>
-          <h2 className="text-2xl font-bold mb-4">Registration Steps</h2>
-          <p className="text-gray-700 mb-6">
-            Here's how to register for a housing lottery:
-          </p>
-          
-          <div className="space-y-4">
-            {[
-              { title: 'Choose Your Lottery', desc: 'Select which lottery program and projects you want to apply for' },
-              { title: 'Gather Documents', desc: 'Prepare all required documents from the eligibility checklist' },
-              { title: 'Register Online', desc: 'Visit the registration portal and complete the form' },
-              { title: 'Submit Documents', desc: 'Upload or submit your documents as required' },
-              { title: 'Receive Confirmation', desc: 'You\'ll get a confirmation number and timeline' },
-              { title: 'Wait for Approval', desc: 'Your eligibility will be verified' },
-            ].map((step, idx) => (
-              <div key={idx} className="flex gap-6 pb-6 border-b last:border-b-0">
-                <div className="flex-shrink-0">
-                  <div className="flex items-center justify-center h-10 w-10 rounded-full bg-primary text-white font-bold">
-                    {idx + 1}
-                  </div>
-                </div>
-                <div className="flex-grow">
-                  <h3 className="font-semibold text-lg">{step.title}</h3>
-                  <p className="text-gray-600 mt-1">{step.desc}</p>
-                </div>
+        <section className="surface-card">
+          <h2>{t('registration.after.title')}</h2>
+          <p className="mb-4">{t('registration.after.intro')}</p>
+          <div className="space-y-3">
+            {afterReg.map(r => (
+              <div key={r.window} className="grid grid-cols-[8.5rem_1fr] items-baseline gap-3 border-t border-[var(--line)] pt-3 first:border-t-0 first:pt-0">
+                <span className="text-sm font-semibold uppercase tracking-[0.14em] text-[var(--brand-deep)]">{r.window}</span>
+                <span className="text-sm text-[var(--ink-soft)]">{r.detail}</span>
               </div>
             ))}
           </div>
         </section>
-
-        <section>
-          <h2 className="text-2xl font-bold mb-4">Where to Register</h2>
-          <p className="text-gray-700 mb-4">
-            Registration portals and addresses will be updated based on current lottery programs:
-          </p>
-          <div className="bg-gray-50 p-6 rounded-lg">
-            <p className="text-gray-600 mb-2">
-              <strong>Official Portal:</strong> Links to official government registration sites
-            </p>
-            <p className="text-gray-600 mb-2">
-              <strong>Local Offices:</strong> Contact information for municipal housing offices
-            </p>
-            <p className="text-gray-600">
-              <strong>Documents Required:</strong> Checklist of what to bring
-            </p>
-          </div>
-        </section>
-
-        <section>
-          <h2 className="text-2xl font-bold mb-4">After Registration</h2>
-          <div className="bg-accent/10 p-6 rounded-lg">
-            <p className="text-gray-700 mb-4">
-              After you register, here's what happens next:
-            </p>
-            <ul className="space-y-3 text-gray-700">
-              <li><strong>Week 1-2:</strong> Confirmation and reference number</li>
-              <li><strong>Week 2-4:</strong> Document verification period</li>
-              <li><strong>Week 4-6:</strong> Eligibility confirmation</li>
-              <li><strong>Week 6+:</strong> Lottery drawing notification</li>
-            </ul>
-          </div>
-        </section>
       </div>
 
-      <div className="mt-12 p-6 bg-accent/10 rounded-lg">
-        <h3 className="font-bold text-lg mb-2">Next Step</h3>
-        <p className="text-gray-700 mb-4">
-          Ready to register? Make sure you've checked your eligibility and prepared your budget first.
-        </p>
-        <a href="/eligibility" className="inline-block bg-primary text-white px-6 py-2 rounded-lg hover:bg-secondary transition-colors">
-          Back to Eligibility
-        </a>
-      </div>
+      <div className="divider-rule" />
+
+      <section className="surface-card">
+        <h2>{t('registration.sources.title')}</h2>
+        <p className="mb-5 text-sm text-[var(--ink-soft)]">{t('registration.sources.disclaimer')}</p>
+        <div className="space-y-3">
+          {sources.map(s => (
+            <div key={s.label} className="border-t border-[var(--line)] pt-3 first:border-t-0 first:pt-0">
+              <p className="font-semibold text-[var(--foreground)]" style={{ fontSize: '0.95rem' }}>{s.label}</p>
+              <p className="text-sm text-[var(--ink-soft)]">{s.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <aside className="next-step">
+        <span className="step-eyebrow">{t('registration.next.eyebrow')}</span>
+        <h3>{t('registration.next.title')}</h3>
+        <p>{t('registration.next.body')}</p>
+        <Link href="/eligibility" className="step-cta">{t('registration.next.cta')}</Link>
+      </aside>
     </div>
   )
 }

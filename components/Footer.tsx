@@ -1,6 +1,10 @@
+'use client'
+
 import Link from 'next/link'
+import { useT } from '@/lib/i18n/LocaleProvider'
 
 export default function Footer() {
+  const t = useT()
   const currentYear = new Date().getFullYear()
 
   return (
@@ -13,51 +17,49 @@ export default function Footer() {
                 HE
               </span>
               <div>
-                <h3 className="text-xl font-semibold text-white">HomeEase</h3>
-                <p className="text-xs uppercase tracking-[0.22em] text-stone-400">Israel housing planning</p>
+                <h3 className="text-xl font-semibold text-white">{t('common.brand')}</h3>
+                <p className="text-xs uppercase tracking-[0.22em] text-stone-400">{t('footer.brandKicker')}</p>
               </div>
             </div>
-            <p className="text-sm leading-6 text-stone-300">
-              Planning platform for Israeli housing lottery eligibility and financial preparation.
-            </p>
+            <p className="text-sm leading-6 text-stone-300">{t('footer.blurb')}</p>
           </div>
 
           <div>
-            <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-stone-400">Resources</h4>
+            <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-stone-400">{t('footer.resources')}</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/eligibility" className="text-stone-200 transition-colors hover:text-white">Eligibility Guide</Link></li>
-              <li><Link href="/budget-calculator" className="text-stone-200 transition-colors hover:text-white">Budget Calculator</Link></li>
-              <li><Link href="/mortgage-estimator" className="text-stone-200 transition-colors hover:text-white">Mortgage Estimator</Link></li>
-              <li><Link href="/project-finder" className="text-stone-200 transition-colors hover:text-white">Project Finder</Link></li>
+              <li><Link href="/eligibility" className="text-stone-200 transition-colors hover:text-white">{t('footer.links.eligibility')}</Link></li>
+              <li><Link href="/budget-calculator" className="text-stone-200 transition-colors hover:text-white">{t('footer.links.budget')}</Link></li>
+              <li><Link href="/mortgage-estimator" className="text-stone-200 transition-colors hover:text-white">{t('footer.links.mortgage')}</Link></li>
+              <li><Link href="/project-finder" className="text-stone-200 transition-colors hover:text-white">{t('footer.links.projects')}</Link></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-stone-400">Guides</h4>
+            <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-stone-400">{t('footer.guides')}</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/registration" className="text-stone-200 transition-colors hover:text-white">Registration Steps</Link></li>
-              <li><Link href="/winner-roadmap" className="text-stone-200 transition-colors hover:text-white">After Winning</Link></li>
-              <a href="#" className="block text-stone-200 transition-colors hover:text-white">FAQ</a>
-              <a href="#" className="block text-stone-200 transition-colors hover:text-white">Contact</a>
+              <li><Link href="/registration" className="text-stone-200 transition-colors hover:text-white">{t('footer.links.registration')}</Link></li>
+              <li><Link href="/winner-roadmap" className="text-stone-200 transition-colors hover:text-white">{t('footer.links.winner')}</Link></li>
+              <li><a href="#" className="block text-stone-200 transition-colors hover:text-white">{t('footer.links.faq')}</a></li>
+              <li><a href="#" className="block text-stone-200 transition-colors hover:text-white">{t('footer.links.contact')}</a></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-stone-400">Legal</h4>
+            <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-stone-400">{t('footer.legal')}</h4>
             <ul className="space-y-2 text-sm">
-              <a href="#" className="block text-stone-200 transition-colors hover:text-white">Privacy Policy</a>
-              <a href="#" className="block text-stone-200 transition-colors hover:text-white">Terms of Service</a>
-              <a href="#" className="block text-stone-200 transition-colors hover:text-white">Disclaimer</a>
+              <li><a href="#" className="block text-stone-200 transition-colors hover:text-white">{t('footer.links.privacy')}</a></li>
+              <li><a href="#" className="block text-stone-200 transition-colors hover:text-white">{t('footer.links.terms')}</a></li>
+              <li><a href="#" className="block text-stone-200 transition-colors hover:text-white">{t('footer.links.disclaimer')}</a></li>
             </ul>
           </div>
         </div>
 
         <div className="mt-10 border-t border-white/10 pt-8">
           <p className="text-center text-sm leading-6 text-stone-300">
-            <strong>Disclaimer:</strong> HomeEase provides general information only. It does not constitute legal, financial, or professional advice. Consult professionals before making decisions.
+            <strong>{t('footer.links.disclaimer')}:</strong> {t('footer.disclaimer')}
           </p>
           <p className="mt-4 text-center text-sm text-stone-400">
-            © {currentYear} HomeEase. Not affiliated with Israeli government agencies.
+            {t('footer.copyright', { year: currentYear })}
           </p>
         </div>
       </div>
