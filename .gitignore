@@ -36,3 +36,13 @@ yarn-error.log*
 # OS
 .DS_Store
 Thumbs.db
+
+# Tooling
+.claude/
+.playwright-mcp/
+.superpowers/
+tsconfig.tsbuildinfo
+
+# Local scratch
+dev.bat
+homeease-*.png

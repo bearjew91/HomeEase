@@ -1,104 +1,74 @@
+'use client'
+
 import Link from 'next/link'
-
 import Button from '@/components/shared/Button'
-import dynamic from 'next/dynamic'
-
-const Hero3D = dynamic(() => import('@/components/Hero3D'), { ssr: false })
+import { useT } from '@/lib/i18n/LocaleProvider'
 
 export default function Home() {
-  const steps = [
-    {
-      id: '01',
-      title: 'Check eligibility',
-      copy: 'Understand whether you qualify, what documents matter, and which official portals you actually need.',
-      href: '/eligibility',
-    },
-    {
-      id: '02',
-      title: 'Model the real budget',
-      copy: 'See the gap between lottery excitement and real affordability before you apply anywhere.',
-      href: '/budget-calculator',
-    },
-    {
-      id: '03',
-      title: 'Prioritize the right projects',
-      copy: 'Filter by budget, location, and risk so you stop chasing projects that do not fit your life.',
-      href: '/project-finder',
-    },
-  ]
+  const t = useT()
 
-  const proofPoints = [
-    'Official process guidance, organized into plain-language steps',
-    'Financial planning before you win, not after the pressure starts',
-    'Project selection logic tied to affordability and lifestyle',
-  ]
+  const flowSteps = t<{ title: string; copy: string }[]>('home.flow.steps')
+  const proofPoints = t<string[]>('home.proof.promise')
+
+  const stepLinks = ['/eligibility', '/budget-calculator', '/project-finder']
 
   return (
     <div className="pb-8">
-      <section className="grain-overlay px-4 pb-16 pt-6 md:pb-24 md:pt-10">
-        <div className="shell grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
-          <div className="glass-panel overflow-hidden rounded-[2rem] p-8 md:p-12">
-            <span className="section-label">Built for Israeli housing lotteries</span>
-            <h1 className="mt-6 max-w-3xl text-5xl leading-[0.95] text-stone-900 md:text-7xl">
-              A calmer way to plan a lottery win before it becomes a financial panic.
+      <section className="grain-overlay px-4 pb-20 pt-6 md:pb-32 md:pt-12">
+        <div className="shell">
+          <div className="glass-panel overflow-hidden rounded-[2rem] p-8 md:p-14 lg:max-w-[58%]">
+            <span className="section-label">{t('home.eyebrow')}</span>
+            <h1 className="mt-6 text-5xl leading-[0.93] text-stone-900 md:text-7xl">
+              {t('home.heroTitle')}
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-[var(--ink-soft)] md:text-xl">
-              HomeEase turns the Mechir LeMishtaken journey into a guided planning flow: eligibility, affordability, project fit, and the steps that matter after winning.
+            <p className="mt-6 max-w-xl text-lg leading-8 text-[var(--ink-soft)] md:text-xl">
+              {t('home.heroLede')}
             </p>
 
             <div className="mt-10 flex flex-col gap-4 sm:flex-row">
               <Link href="/budget-calculator">
-                <Button>Run the budget check</Button>
+                <Button>{t('home.ctaBudget')}</Button>
               </Link>
               <Link href="/eligibility">
                 <Button className="border border-[var(--line)] bg-[rgba(255,251,245,0.7)] text-[var(--foreground)] shadow-none hover:-translate-y-0.5 hover:bg-white">
-                  Review eligibility
+                  {t('home.ctaEligibility')}
                 </Button>
               </Link>
             </div>
 
             <div className="mt-10 grid gap-4 border-t border-[var(--line)] pt-6 sm:grid-cols-3">
-              <div>
-                <p className="text-3xl font-semibold text-stone-900">01</p>
-                <p className="mt-2 text-sm uppercase tracking-[0.18em] text-[var(--ink-soft)]">Eligibility first</p>
-              </div>
-              <div>
-                <p className="text-3xl font-semibold text-stone-900">02</p>
-                <p className="mt-2 text-sm uppercase tracking-[0.18em] text-[var(--ink-soft)]">Budget before hope</p>
-              </div>
-              <div>
-                <p className="text-3xl font-semibold text-stone-900">03</p>
-                <p className="mt-2 text-sm uppercase tracking-[0.18em] text-[var(--ink-soft)]">Projects that fit</p>
-              </div>
+              {(['a', 'b', 'c'] as const).map((k, idx) => (
+                <div key={k}>
+                  <p className="text-3xl font-semibold text-stone-900">{String(idx + 1).padStart(2, '0')}</p>
+                  <p className="mt-2 text-sm uppercase tracking-[0.18em] text-[var(--ink-soft)]">
+                    {t(`home.pillars.${k}`)}
+                  </p>
+                </div>
+              ))}
             </div>
-
-          </div>
-          {/* 3D Hero Section */}
-          <div className="hidden lg:block">
-            <Hero3D />
           </div>
 
-          <div className="grid gap-4">
-            <div className="soft-card rounded-[1.75rem] p-6">
-              <p className="text-sm uppercase tracking-[0.18em] text-[var(--ink-soft)]">What the product fixes</p>
-              <div className="mt-4 space-y-4">
+          <div className="mt-6 grid gap-4 lg:ml-auto lg:max-w-[56%] lg:grid-cols-2">
+            <div className="soft-card rounded-[1.75rem] p-6 lg:col-span-2">
+              <p className="text-sm uppercase tracking-[0.18em] text-[var(--ink-soft)]">{t('home.proof.title')}</p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <div className="rounded-2xl border border-[rgba(154,52,18,0.15)] bg-[rgba(154,52,18,0.06)] p-4">
-                  <p className="text-sm font-semibold uppercase tracking-[0.12em] text-[var(--brand-deep)]">Without a plan</p>
-                  <p className="mt-2 text-sm leading-6 text-[var(--ink-soft)]">People enter lotteries based on excitement, then discover too late that the mortgage, location, or deadlines do not work.</p>
+                  <p className="text-sm font-semibold uppercase tracking-[0.12em] text-[var(--brand-deep)]">{t('home.proof.withoutTitle')}</p>
+                  <p className="mt-2 text-sm leading-6 text-[var(--ink-soft)]">{t('home.proof.withoutBody')}</p>
                 </div>
                 <div className="rounded-2xl border border-[rgba(44,93,72,0.16)] bg-[rgba(73,122,101,0.08)] p-4">
-                  <p className="text-sm font-semibold uppercase tracking-[0.12em] text-[#315f4b]">With HomeEase</p>
-                  <p className="mt-2 text-sm leading-6 text-[var(--ink-soft)]">Users get a planning layer before they register, so every application starts from realistic numbers and clear next steps.</p>
+                  <p className="text-sm font-semibold uppercase tracking-[0.12em] text-[#315f4b]">{t('home.proof.withTitle')}</p>
+                  <p className="mt-2 text-sm leading-6 text-[var(--ink-soft)]">{t('home.proof.withBody')}</p>
                 </div>
               </div>
             </div>
 
             <div className="glass-panel rounded-[1.75rem] p-6">
-              <p className="text-sm uppercase tracking-[0.18em] text-[var(--ink-soft)]">Core promise</p>
+              <p className="text-sm uppercase tracking-[0.18em] text-[var(--ink-soft)]">{t('home.proof.promiseTitle')}</p>
               <ul className="mt-4 space-y-3 text-sm leading-6 text-[var(--foreground)]">
                 {proofPoints.map((item) => (
                   <li key={item} className="flex gap-3">
-                    <span className="mt-2 h-2 w-2 rounded-full bg-[var(--brand)]" />
+                    <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[var(--brand)]" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -112,27 +82,29 @@ export default function Home() {
         <div className="shell rounded-[2rem] border border-[var(--line)] bg-[rgba(255,249,240,0.75)] p-6 md:p-10">
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div>
-              <span className="section-label">Three-part flow</span>
+              <span className="section-label">{t('home.flow.kicker')}</span>
               <h2 className="mt-5 max-w-2xl text-3xl text-stone-900 md:text-5xl">
-                The platform should feel like a decision system, not a content dump.
+                {t('home.flow.title')}
               </h2>
             </div>
             <p className="max-w-md text-base leading-7 text-[var(--ink-soft)]">
-              Each stage removes a different kind of uncertainty: legal eligibility, financial reality, and project choice.
+              {t('home.flow.lede')}
             </p>
           </div>
 
           <div className="mt-10 grid gap-5 lg:grid-cols-3">
-            {steps.map((step) => (
+            {flowSteps.map((step, idx) => (
               <Link
-                key={step.id}
-                href={step.href}
+                key={idx}
+                href={stepLinks[idx]}
                 className="group rounded-[1.5rem] border border-[var(--line)] bg-[rgba(255,252,247,0.92)] p-6 transition-transform duration-200 hover:-translate-y-1 hover:border-[rgba(154,52,18,0.3)]"
               >
                 <div className="flex items-start justify-between gap-4">
-                  <span className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--brand)]">{step.id}</span>
+                  <span className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--brand)]">
+                    {String(idx + 1).padStart(2, '0')}
+                  </span>
                   <span className="rounded-full border border-[var(--line)] px-3 py-1 text-xs uppercase tracking-[0.16em] text-[var(--ink-soft)]">
-                    Open
+                    {t('common.open')}
                   </span>
                 </div>
                 <h3 className="mt-8 text-2xl text-stone-900">{step.title}</h3>
@@ -146,28 +118,28 @@ export default function Home() {
       <section className="px-4 py-10 md:py-14">
         <div className="shell grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="soft-card rounded-[1.75rem] p-8">
-            <span className="section-label">Why this matters</span>
+            <span className="section-label">{t('home.why.kicker')}</span>
             <h2 className="mt-5 text-3xl text-stone-900 md:text-4xl">
-              Winning is not the hard part. Being ready is.
+              {t('home.why.title')}
             </h2>
             <p className="mt-4 text-base leading-7 text-[var(--ink-soft)]">
-              The product needs to reduce expensive mistakes early: applying to the wrong projects, overestimating mortgage capacity, or reaching the winner stage without prepared documents.
+              {t('home.why.body')}
             </p>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="glass-panel rounded-[1.5rem] p-6">
-              <p className="text-sm uppercase tracking-[0.18em] text-[var(--ink-soft)]">Current MVP tools</p>
-              <h3 className="mt-4 text-2xl text-stone-900">Interactive calculators</h3>
+              <p className="text-sm uppercase tracking-[0.18em] text-[var(--ink-soft)]">{t('home.why.mvpKicker')}</p>
+              <h3 className="mt-4 text-2xl text-stone-900">{t('home.why.mvpTitle')}</h3>
               <p className="mt-3 text-sm leading-7 text-[var(--ink-soft)]">
-                The budget and mortgage screens already work, which means the product can feel useful even before the knowledge base is fully researched.
+                {t('home.why.mvpBody')}
               </p>
             </div>
             <div className="glass-panel rounded-[1.5rem] p-6">
-              <p className="text-sm uppercase tracking-[0.18em] text-[var(--ink-soft)]">Next content layer</p>
-              <h3 className="mt-4 text-2xl text-stone-900">Knowledge base pages</h3>
+              <p className="text-sm uppercase tracking-[0.18em] text-[var(--ink-soft)]">{t('home.why.nextKicker')}</p>
+              <h3 className="mt-4 text-2xl text-stone-900">{t('home.why.nextTitle')}</h3>
               <p className="mt-3 text-sm leading-7 text-[var(--ink-soft)]">
-                Eligibility, registration, and winner-roadmap pages are ready for real data once you collect the official requirements and timelines.
+                {t('home.why.nextBody')}
               </p>
             </div>
           </div>
@@ -179,21 +151,21 @@ export default function Home() {
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div>
               <span className="inline-block rounded-full border border-white/15 px-4 py-2 text-xs uppercase tracking-[0.18em] text-white/80">
-                Start with the working tools
+                {t('home.finalCta.kicker')}
               </span>
               <h2 className="mt-5 max-w-2xl text-3xl md:text-5xl">
-                Test the calculators now, then feed the research into the guides.
+                {t('home.finalCta.title')}
               </h2>
             </div>
             <div className="flex flex-col gap-4 sm:flex-row md:flex-col md:items-end">
               <Link href="/budget-calculator">
                 <Button className="bg-white text-[var(--brand-deep)] shadow-none hover:bg-stone-100">
-                  Open budget calculator
+                  {t('home.finalCta.ctaBudget')}
                 </Button>
               </Link>
               <Link href="/registration">
                 <Button className="border border-white/20 bg-white/10 text-white shadow-none hover:bg-white/15">
-                  Review registration flow
+                  {t('home.finalCta.ctaRegistration')}
                 </Button>
               </Link>
             </div>
