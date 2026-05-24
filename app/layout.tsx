@@ -2,12 +2,15 @@ import type { Metadata } from 'next'
 import { Playfair_Display, Manrope, Heebo, Frank_Ruhl_Libre } from 'next/font/google'
 import dynamic from 'next/dynamic'
 import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import './globals.css'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import { LocaleProvider } from '@/lib/i18n/LocaleProvider'
 import { getServerLocale } from '@/lib/i18n/getServerLocale'
 import { isRtl } from '@/lib/i18n/messages'
+import { SITE_URL, SITE_NAME } from '@/lib/site'
+import { buildMetadata } from '@/lib/seo'
 
 const BuildingBackground = dynamic(
   () => import('@/components/BuildingBackground'),
@@ -38,10 +41,23 @@ const heebo = Heebo({
   weight: ['400', '500', '600', '700', '800'],
 })
 
-export const metadata: Metadata = {
-  title: 'HomeEase - Israeli Housing Lottery Planning',
-  description: 'Plan your journey to affordable housing through Israeli subsidized housing lotteries. Get guidance on eligibility, budgeting, and the complete process.',
-  keywords: 'housing lottery, Israel, Mechir LeMishtaken, affordable housing, financial planning',
+export function generateMetadata(): Metadata {
+  const base = buildMetadata('home')
+  return {
+    metadataBase: new URL(SITE_URL),
+    applicationName: SITE_NAME,
+    title: { default: base.title as string, template: `%s — ${SITE_NAME}` },
+    description: base.description,
+    keywords: [
+      'דירה בהנחה', 'מחיר למשתכן', 'מחיר מטרה', 'הגרלת דיור', 'משכנתא',
+      'Dira BeHanacha', 'Mechir LeMishtaken', 'Israeli housing lottery', 'affordable housing Israel',
+    ],
+    openGraph: base.openGraph,
+    twitter: base.twitter,
+    alternates: base.alternates,
+    robots: { index: true, follow: true },
+    icons: { icon: '/icon.svg' },
+  }
 }
 
 export default function RootLayout({
@@ -52,6 +68,20 @@ export default function RootLayout({
   const locale = getServerLocale()
   const dir = isRtl(locale) ? 'rtl' : 'ltr'
 
+  const orgJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: SITE_NAME,
+    url: SITE_URL,
+    inLanguage: locale === 'he' ? 'he-IL' : 'en-US',
+    applicationCategory: 'FinanceApplication',
+    operatingSystem: 'Web',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'ILS' },
+    description: locale === 'he'
+      ? 'כלי תכנון לדירה בהנחה ולמחיר למשתכן: זכאות, תקציב, משכנתא ופרויקטים.'
+      : 'Planning toolkit for Israeli housing lotteries: eligibility, budget, mortgage, and projects.',
+  }
+
   return (
     <html
       lang={locale}
@@ -59,6 +89,10 @@ export default function RootLayout({
       className={`${playfair.variable} ${manrope.variable} ${frankRuhl.variable} ${heebo.variable}`}
     >
       <body className="antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+        />
         <LocaleProvider locale={locale}>
           <BuildingBackground />
           <div className="relative z-10">
@@ -70,7 +104,9 @@ export default function RootLayout({
           </div>
         </LocaleProvider>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   )
 }
+
