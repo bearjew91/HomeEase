@@ -10,7 +10,7 @@ export default function Footer() {
   return (
     <footer className="px-4 pb-8 pt-20">
       <div className="shell overflow-hidden rounded-[2rem] border border-[var(--line)] bg-[linear-gradient(145deg,rgba(51,37,29,0.98),rgba(29,22,18,0.98))] px-6 py-10 text-stone-200 shadow-[0_28px_80px_rgba(40,27,21,0.18)] md:px-10">
-        <div className="grid gap-10 md:grid-cols-4 md:gap-8">
+        <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-4 md:gap-8">
           <div>
             <div className="mb-4 inline-flex items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xs font-bold tracking-[0.18em] text-white">
@@ -29,7 +29,6 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               <li><Link href="/eligibility" className="text-stone-200 transition-colors hover:text-white">{t('footer.links.eligibility')}</Link></li>
               <li><Link href="/budget-calculator" className="text-stone-200 transition-colors hover:text-white">{t('footer.links.budget')}</Link></li>
-              <li><Link href="/mortgage-estimator" className="text-stone-200 transition-colors hover:text-white">{t('footer.links.mortgage')}</Link></li>
               <li><Link href="/project-finder" className="text-stone-200 transition-colors hover:text-white">{t('footer.links.projects')}</Link></li>
             </ul>
           </div>
