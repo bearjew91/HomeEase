@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Playfair_Display, Manrope, Heebo, Frank_Ruhl_Libre } from 'next/font/google'
 import dynamic from 'next/dynamic'
+import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
@@ -68,6 +69,7 @@ export default function RootLayout({
             <Footer />
           </div>
         </LocaleProvider>
+        <Analytics />
       </body>
     </html>
   )
