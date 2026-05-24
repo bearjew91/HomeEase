@@ -31,8 +31,7 @@ export const ROUTES = [
   { path: '/', priority: 1.0, changefreq: 'monthly' as const },
   { path: '/eligibility', priority: 0.9, changefreq: 'monthly' as const },
   { path: '/registration', priority: 0.85, changefreq: 'monthly' as const },
-  { path: '/budget-calculator', priority: 0.9, changefreq: 'monthly' as const },
-  { path: '/mortgage-estimator', priority: 0.9, changefreq: 'monthly' as const },
+  { path: '/budget-calculator', priority: 0.95, changefreq: 'monthly' as const },
   { path: '/project-finder', priority: 0.8, changefreq: 'weekly' as const },
   { path: '/winner-roadmap', priority: 0.8, changefreq: 'monthly' as const },
 ] as const

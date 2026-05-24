@@ -11,7 +11,6 @@ export default function Navigation() {
     { href: '/eligibility',        label: t<string>('nav.eligibility') },
     { href: '/registration',       label: t<string>('nav.registration') },
     { href: '/budget-calculator',  label: t<string>('nav.budget') },
-    { href: '/mortgage-estimator', label: t<string>('nav.mortgage') },
     { href: '/project-finder',     label: t<string>('nav.projects') },
     { href: '/winner-roadmap',     label: t<string>('nav.roadmap') },
   ]

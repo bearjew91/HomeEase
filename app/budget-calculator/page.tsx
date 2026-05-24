@@ -4,36 +4,25 @@ import { useState } from 'react'
 import Link from 'next/link'
 import {
   calculateAffordability,
-  type BudgetInputs,
-  type BudgetResult,
-  type ResultCategory,
+  type AffordabilityInputs,
+  type AffordabilityResult,
 } from '@/lib/calculators'
 import Button from '@/components/shared/Button'
 import Input from '@/components/shared/Input'
 import { useT } from '@/lib/i18n/LocaleProvider'
 
 interface FormState {
-  netMonthlyHouseholdIncome: number
-  currentMonthlyExpenses: number
+  availableCash: number
+  netMonthlyIncome: number
   existingMonthlyLoanPayments: number
-  monthlyRentUntilEntry: number
-  availableCashSavings: number
-  emergencyFundToKeep: number
-  expectedExtraPurchaseCosts: number
-  hasEligibleGrant: boolean
   annualInterestRatePct: number
   termYears: number
 }
 
 const initial: FormState = {
-  netMonthlyHouseholdIncome: 0,
-  currentMonthlyExpenses: 0,
+  availableCash: 0,
+  netMonthlyIncome: 0,
   existingMonthlyLoanPayments: 0,
-  monthlyRentUntilEntry: 0,
-  availableCashSavings: 0,
-  emergencyFundToKeep: 0,
-  expectedExtraPurchaseCosts: 50_000,
-  hasEligibleGrant: false,
   annualInterestRatePct: 5.0,
   termYears: 30,
 }
@@ -41,45 +30,27 @@ const initial: FormState = {
 type Item = { label: string; detail: string }
 type Source = { label: string; body: string }
 type FieldCopy = { label: string; placeholder?: string; hint?: string }
-type ToggleCopy = { label: string; hint?: string }
 
-const toneByCategory: Record<ResultCategory, string> = {
-  green: 'tone-good',
-  yellow: 'tone-warn',
-  orange: 'tone-orange',
-  red: 'tone-danger',
-}
-
-export default function BudgetCalculatorPage() {
+export default function AffordabilityPage() {
   const t = useT()
   const rulesItems = t<Item[]>('budget.rules.items')
   const grantsItems = t<Item[]>('budget.rules.grants')
   const sources = t<Source[]>('budget.sources.items')
   const f = (key: string) => t<FieldCopy>(`budget.form.${key}`)
-  const toggle = (key: string) => t<ToggleCopy>(`budget.form.${key}`)
 
   const [form, setForm] = useState<FormState>(initial)
-  const [result, setResult] = useState<BudgetResult | null>(null)
+  const [result, setResult] = useState<AffordabilityResult | null>(null)
 
   const onNumber = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setForm(prev => ({ ...prev, [name]: parseFloat(value) || 0 }))
   }
-  const onBool = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target
-    setForm(prev => ({ ...prev, [name]: checked }))
-  }
 
   const handleCalculate = () => {
-    const inputs: BudgetInputs = {
-      netMonthlyHouseholdIncome: form.netMonthlyHouseholdIncome,
-      currentMonthlyExpenses: form.currentMonthlyExpenses,
+    const inputs: AffordabilityInputs = {
+      availableCash: form.availableCash,
+      netMonthlyIncome: form.netMonthlyIncome,
       existingMonthlyLoanPayments: form.existingMonthlyLoanPayments,
-      monthlyRentUntilEntry: form.monthlyRentUntilEntry || undefined,
-      availableCashSavings: form.availableCashSavings,
-      emergencyFundToKeep: form.emergencyFundToKeep || undefined,
-      expectedExtraPurchaseCosts: form.expectedExtraPurchaseCosts,
-      hasEligibleGrant: form.hasEligibleGrant,
       annualInterestRate: form.annualInterestRatePct / 100,
       termYears: form.termYears,
     }
@@ -88,11 +59,7 @@ export default function BudgetCalculatorPage() {
 
   const fmt = (n: number) => `₪${Math.round(n).toLocaleString('he-IL')}`
 
-  const numberField = (
-    name: keyof FormState,
-    copy: FieldCopy,
-    step?: string,
-  ) => (
+  const numberField = (name: keyof FormState, copy: FieldCopy, step?: string) => (
     <div key={name as string}>
       <label className="field-label" htmlFor={name as string}>{copy.label}</label>
       <Input
@@ -108,24 +75,6 @@ export default function BudgetCalculatorPage() {
     </div>
   )
 
-  const checkboxField = (name: keyof FormState, copy: ToggleCopy) => (
-    <label key={name as string} className="flex items-start gap-3 cursor-pointer">
-      <input
-        type="checkbox"
-        name={name as string}
-        checked={form[name] as boolean}
-        onChange={onBool}
-        className="mt-1 h-4 w-4 accent-[var(--brand)]"
-      />
-      <span>
-        <span className="block text-sm font-semibold text-[var(--foreground)]">{copy.label}</span>
-        {copy.hint && <span className="block text-xs text-[var(--ink-soft)] mt-0.5">{copy.hint}</span>}
-      </span>
-    </label>
-  )
-
-  const verifiedTone = result ? toneByCategory[result.verified.category] : 'tone-brand'
-
   return (
     <div className="page-shell">
       <header className="mb-10">
@@ -136,6 +85,73 @@ export default function BudgetCalculatorPage() {
           {t('common.lastUpdated')}: {t('budget.lastUpdated')}
         </p>
       </header>
+
+      <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+        <section className="surface-card">
+          <h2>{t('budget.form.title')}</h2>
+          <p className="mb-6">{t('budget.form.intro')}</p>
+
+          <div className="space-y-5">
+            {numberField('availableCash', f('cash'))}
+            {numberField('netMonthlyIncome', f('netIncome'))}
+            {numberField('existingMonthlyLoanPayments', f('existingLoans'))}
+            {numberField('annualInterestRatePct', f('interestRate'), '0.1')}
+            {numberField('termYears', f('termYears'))}
+
+            <Button onClick={handleCalculate} className="mt-4 w-full">
+              {t('budget.form.calculate')}
+            </Button>
+          </div>
+        </section>
+
+        <section className="surface-card">
+          <h2>{t('budget.results.title')}</h2>
+          {result ? (
+            <div className="space-y-4">
+              <div className="stat-tile tone-good">
+                <p className="stat-label">{t('budget.results.maxPriceSafe')}</p>
+                <p className="stat-value">{fmt(result.safe.maxPurchasePrice)}</p>
+                <p className="stat-foot">{t('budget.results.maxPriceSafeFoot')}</p>
+              </div>
+
+              <div className="stat-tile tone-warn">
+                <p className="stat-label">{t('budget.results.maxPriceStretched')}</p>
+                <p className="stat-value">{fmt(result.stretched.maxPurchasePrice)}</p>
+                <p className="stat-foot">{t('budget.results.maxPriceStretchedFoot')}</p>
+              </div>
+
+              <div className="stat-tile tone-orange">
+                <p className="stat-label">{t('budget.results.maxPriceHard')}</p>
+                <p className="stat-value">{fmt(result.hard.maxPurchasePrice)}</p>
+                <p className="stat-foot">{t('budget.results.maxPriceHardFoot')}</p>
+              </div>
+
+              <div className="rounded-2xl border border-[var(--line)] bg-[rgba(255,250,242,0.7)] p-5">
+                <p className="field-label">{t('budget.results.breakdown')}</p>
+                <ul className="mt-2 space-y-1.5 text-sm" style={{ listStyle: 'none', padding: 0 }}>
+                  <li><span className="text-[var(--ink-soft)]">{t('budget.results.disposableIncome')}:</span> <strong className="text-[var(--foreground)]">{fmt(result.disposableMonthlyIncome)}</strong></li>
+                  <li><span className="text-[var(--ink-soft)]">{t('budget.results.cash')}:</span> <strong className="text-[var(--foreground)]">{fmt(result.availableCash)}</strong></li>
+                  <li><span className="text-[var(--ink-soft)]">{t('budget.results.safePayment')}:</span> <strong className="text-[var(--foreground)]">{fmt(result.safe.monthlyPayment)} <span className="text-[var(--ink-soft)] font-normal">({(result.safe.ptiRatio * 100).toFixed(0)}%)</span></strong></li>
+                  <li><span className="text-[var(--ink-soft)]">{t('budget.results.safeLoan')}:</span> <strong className="text-[var(--foreground)]">{fmt(result.safe.maxLoan)}</strong></li>
+                </ul>
+              </div>
+
+              <div className="callout callout-warn">
+                <span className="callout-mark">!</span>
+                <span>{t('budget.results.warn')}</span>
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-[var(--line)] p-8 text-center">
+              <p className="text-sm text-[var(--ink-soft)]">
+                {t('budget.results.emptyPrefix')} <strong className="text-[var(--brand-deep)]">{t('budget.results.emptyHighlight')}</strong>{t('budget.results.emptySuffix')}
+              </p>
+            </div>
+          )}
+        </section>
+      </div>
+
+      <div className="divider-rule" />
 
       <section className="surface-card mb-10">
         <h2>{t('budget.rules.title')}</h2>
@@ -160,82 +176,6 @@ export default function BudgetCalculatorPage() {
         </div>
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-        <section className="surface-card">
-          <h2>{t('budget.form.title')}</h2>
-          <p className="mb-6">{t('budget.form.intro')}</p>
-
-          <div className="space-y-5">
-            {numberField('netMonthlyHouseholdIncome', f('netIncome'))}
-            {numberField('currentMonthlyExpenses', f('expenses'))}
-            {numberField('existingMonthlyLoanPayments', f('existingLoans'))}
-            {numberField('monthlyRentUntilEntry', f('rentUntilEntry'))}
-            {numberField('availableCashSavings', f('cashSavings'))}
-            {numberField('emergencyFundToKeep', f('emergencyFund'))}
-            {numberField('expectedExtraPurchaseCosts', f('extraCosts'))}
-            {numberField('annualInterestRatePct', f('interestRate'), '0.1')}
-            {numberField('termYears', f('termYears'))}
-
-            <div className="pt-2">
-              {checkboxField('hasEligibleGrant', toggle('hasGrant'))}
-            </div>
-
-            <Button onClick={handleCalculate} className="mt-4 w-full">
-              {t('budget.form.calculate')}
-            </Button>
-          </div>
-        </section>
-
-        <section className="surface-card">
-          <h2>{t('budget.results.title')}</h2>
-          {result ? (
-            <div className="space-y-4">
-              <div className={`stat-tile ${verifiedTone}`}>
-                <p className="stat-label">{t('budget.results.estimatedMaxPrice')}</p>
-                <p className="stat-value">{fmt(result.estimatedMaxPurchasePrice)}</p>
-                <p className="stat-foot">{t('budget.results.estimatedMaxPriceFoot')}</p>
-              </div>
-
-              <div className="stat-tile tone-good">
-                <p className="stat-label">{t('budget.results.equityForApartment')}</p>
-                <p className="stat-value">{fmt(result.availableEquityForApartment)}</p>
-                <p className="stat-foot">{t('budget.results.equityForApartmentFoot')}</p>
-              </div>
-
-              <div className="stat-tile tone-brand">
-                <p className="stat-label">{t('budget.results.safeMonthlyCapacity')}</p>
-                <p className="stat-value">{fmt(result.safeMonthlyCapacity)}</p>
-                <p className="stat-foot">{t('budget.results.safeMonthlyCapacityFoot')}</p>
-              </div>
-
-              <div className="rounded-2xl border border-[var(--line)] bg-[rgba(255,250,242,0.7)] p-5">
-                <p className="field-label">{t('budget.results.breakdown')}</p>
-                <ul className="mt-2 space-y-1.5 text-sm" style={{ listStyle: 'none', padding: 0 }}>
-                  <li><span className="text-[var(--ink-soft)]">{t('budget.results.monthlyFreeCashflow')}:</span> <strong className="text-[var(--foreground)]">{fmt(result.monthlyFreeCashflow)}</strong></li>
-                  <li><span className="text-[var(--ink-soft)]">{t('budget.results.maxLoanByIncome')}:</span> <strong className="text-[var(--foreground)]">{fmt(result.maxLoanByIncome)}</strong></li>
-                  <li><span className="text-[var(--ink-soft)]">{t('budget.results.emergencyReserve')}:</span> <strong className="text-[var(--foreground)]">{fmt(result.emergencyFundToKeep)}</strong></li>
-                  <li><span className="text-[var(--ink-soft)]">{t('budget.results.extraCostsReserved')}:</span> <strong className="text-[var(--foreground)]">{fmt(result.expectedExtraPurchaseCosts)}</strong></li>
-                  <li><span className="text-[var(--ink-soft)]">{t('budget.results.savingsRate')}:</span> <strong className="text-[var(--foreground)]">{result.savingsRate.toFixed(0)}% {t('budget.results.savingsRateSuffix')}</strong></li>
-                </ul>
-              </div>
-
-              <div className="callout callout-warn">
-                <span className="callout-mark">!</span>
-                <span>{t('budget.results.warn')}</span>
-              </div>
-            </div>
-          ) : (
-            <div className="rounded-2xl border border-dashed border-[var(--line)] p-8 text-center">
-              <p className="text-sm text-[var(--ink-soft)]">
-                {t('budget.results.emptyPrefix')} <strong className="text-[var(--brand-deep)]">{t('budget.results.emptyHighlight')}</strong>{t('budget.results.emptySuffix')}
-              </p>
-            </div>
-          )}
-        </section>
-      </div>
-
-      <div className="divider-rule" />
-
       <section className="surface-card">
         <h2>{t('budget.sources.title')}</h2>
         <p className="mb-5 text-sm text-[var(--ink-soft)]">{t('budget.sources.disclaimer')}</p>
@@ -253,7 +193,7 @@ export default function BudgetCalculatorPage() {
         <span className="step-eyebrow">{t('budget.next.eyebrow')}</span>
         <h3>{t('budget.next.title')}</h3>
         <p>{t('budget.next.body')}</p>
-        <Link href="/mortgage-estimator" className="step-cta">{t('budget.next.cta')}</Link>
+        <Link href="/project-finder" className="step-cta">{t('budget.next.cta')}</Link>
       </aside>
     </div>
   )

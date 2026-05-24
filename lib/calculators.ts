@@ -249,102 +249,73 @@ export function calculateMortgage(input: MortgageInputs): MortgageResult {
 }
 
 // ---------------------------------------------------------------------------
-// Budget calculator — works backwards from "what can I afford?"
+// Affordability — the simple, three-input version
 // ---------------------------------------------------------------------------
+//
+// Three inputs the user actually knows off the top of their head:
+//   - cash they can put down today
+//   - net monthly household income
+//   - existing monthly loan payments
+//
+// Math:
+//   disposable = netIncome − loans
+//   monthlyPaymentAt(tier) = disposable × {30%, 40%, 50%}
+//   maxLoanAt(tier) = inverse-annuity(monthlyPaymentAt(tier))
+//   maxPriceAt(tier) = cash + maxLoanAt(tier)
+//
+// Three tiers map to the green/yellow/orange traffic light from spec §7.
+// Anything tighter than green stays red.
 
-export interface BudgetInputs {
-  netMonthlyHouseholdIncome: number
-  currentMonthlyExpenses: number
+export interface AffordabilityInputs {
+  availableCash: number
+  netMonthlyIncome: number
   existingMonthlyLoanPayments: number
-  monthlyRentUntilEntry?: number
-  availableCashSavings: number
-  /** Cash to reserve for emergencies. Defaults to 3× monthly income. */
-  emergencyFundToKeep?: number
-  /** Lawyer, moving, furniture, indexation buffer. Default ₪50k. */
-  expectedExtraPurchaseCosts?: number
-  hasEligibleGrant: boolean
-  expectedGrantAmount?: number
   annualInterestRate?: number
   termYears?: number
 }
 
-export interface BudgetResult {
-  /** Cash the user can actually put toward the apartment. */
-  availableEquityForApartment: number
-  /** Emergency fund target. */
-  emergencyFundToKeep: number
-  /** Extra purchase-related costs reserved. */
-  expectedExtraPurchaseCosts: number
-  /** Net income minus fixed outflows. */
-  monthlyFreeCashflow: number
-  /** Conservative monthly housing payment cap. */
-  safeMonthlyCapacity: number
-  /** Max loan supported by safeMonthlyCapacity. */
-  maxLoanByIncome: number
-  /** Conservative max purchase price = equity + max loan. */
-  estimatedMaxPurchasePrice: number
-  /** Same number, re-validated by the mortgage calc to confirm it passes LTV + PTI + equity floor. */
-  verified: MortgageResult
-  /** Savings rate as % of net income. */
-  savingsRate: number
+export interface AffordabilityTier {
+  category: ResultCategory
+  ptiRatio: number
+  monthlyPayment: number
+  maxLoan: number
+  maxPurchasePrice: number
 }
 
-export function calculateAffordability(input: BudgetInputs): BudgetResult {
+export interface AffordabilityResult {
+  disposableMonthlyIncome: number
+  availableCash: number
+  /** Recommended (safe) tier — the headline number. */
+  safe: AffordabilityTier
+  /** 40% PTI — tight but possible. */
+  stretched: AffordabilityTier
+  /** 50% PTI — BoI regulatory ceiling. */
+  hard: AffordabilityTier
+}
+
+export function calculateAffordability(input: AffordabilityInputs): AffordabilityResult {
   const rate = input.annualInterestRate ?? DEFAULT_ANNUAL_INTEREST_RATE
   const term = Math.min(input.termYears ?? MAX_MORTGAGE_TERM_YEARS, MAX_MORTGAGE_TERM_YEARS)
-  const emergencyFundToKeep = input.emergencyFundToKeep ?? input.netMonthlyHouseholdIncome * 3
-  const expectedExtraPurchaseCosts = input.expectedExtraPurchaseCosts ?? 50_000
+  const cash = Math.max(0, input.availableCash)
+  const disposable = Math.max(0, input.netMonthlyIncome - input.existingMonthlyLoanPayments)
 
-  const availableEquityForApartment = Math.max(
-    0,
-    input.availableCashSavings - emergencyFundToKeep - expectedExtraPurchaseCosts,
-  )
-
-  const monthlyFreeCashflow = Math.max(
-    0,
-    input.netMonthlyHouseholdIncome
-      - input.currentMonthlyExpenses
-      - input.existingMonthlyLoanPayments
-      - (input.monthlyRentUntilEntry ?? 0),
-  )
-
-  // Use the *lower* of "30% of net income" and "70% of free cashflow" —
-  // protects against both income-rich/expense-rich and income-poor/expense-light cases.
-  const safeMonthlyCapacity = Math.min(
-    input.netMonthlyHouseholdIncome * PTI.safe,
-    monthlyFreeCashflow * 0.70,
-  )
-
-  const maxLoanByIncome = principalFromPayment(safeMonthlyCapacity, rate, term)
-  const estimatedMaxPurchasePrice = Math.max(0, availableEquityForApartment + maxLoanByIncome)
-
-  // Re-run through the mortgage calc with the estimated price to confirm it passes
-  // LTV + PTI + equity-floor in combination (not just in isolation).
-  const verified = calculateMortgage({
-    purchasePrice: estimatedMaxPurchasePrice,
-    netMonthlyHouseholdIncome: input.netMonthlyHouseholdIncome,
-    existingMonthlyLoanPayments: input.existingMonthlyLoanPayments,
-    monthlyRentUntilEntry: input.monthlyRentUntilEntry,
-    availableCashEquity: availableEquityForApartment,
-    hasEligibleGrant: input.hasEligibleGrant,
-    useSubsidizedRules: true,
-    annualInterestRate: rate,
-    termYears: term,
-  })
-
-  const savingsRate = input.netMonthlyHouseholdIncome > 0
-    ? (monthlyFreeCashflow / input.netMonthlyHouseholdIncome) * 100
-    : 0
+  const tier = (category: ResultCategory, ptiRatio: number): AffordabilityTier => {
+    const monthlyPay = disposable * ptiRatio
+    const maxLoan = principalFromPayment(monthlyPay, rate, term)
+    return {
+      category,
+      ptiRatio,
+      monthlyPayment: monthlyPay,
+      maxLoan,
+      maxPurchasePrice: cash + maxLoan,
+    }
+  }
 
   return {
-    availableEquityForApartment,
-    emergencyFundToKeep,
-    expectedExtraPurchaseCosts,
-    monthlyFreeCashflow,
-    safeMonthlyCapacity,
-    maxLoanByIncome,
-    estimatedMaxPurchasePrice,
-    verified,
-    savingsRate,
+    disposableMonthlyIncome: disposable,
+    availableCash: cash,
+    safe: tier('green', PTI.safe),
+    stretched: tier('yellow', PTI.stretched),
+    hard: tier('orange', PTI.hard),
   }
 }
